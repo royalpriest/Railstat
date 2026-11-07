@@ -53,5 +53,11 @@ python samples/make_sample.py   # regenerate the sample workbook
 
 `Project.ipynb` is the original notebook version, kept for reference. The maintained code is in `report_tool/`.
 
-### Live demo on Vercel
-`vercel.json` deploys the report as a static page: the build installs the tool, generates the HTML report from `samples/bookings_sample.xlsx`, and serves it as `index.html`. It sets the framework to "Other", so Vercel doesn't treat the repo as a Python web app. To show your own data, change the workbook path in `buildCommand`.
+### Web app (Vercel)
+`app.py` is a small Flask app: upload an `.xlsx` (up to 4 MB) and it returns the HTML dashboard, or open `/sample` to see the sample report. Uploads are processed in a temporary file that is deleted straight away; nothing is stored. Passenger names stay masked unless the "Show full passenger names" box is ticked.
+
+```bash
+flask --app app run          # http://127.0.0.1:5000
+```
+
+On Vercel it deploys with no extra configuration: Vercel finds `app.py` and installs the dependencies from `pyproject.toml`.
