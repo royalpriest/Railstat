@@ -149,6 +149,56 @@ footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-betwee
   .filters { position: static; }
   .card, .quality { break-inside: avoid; }
 }
+
+/* Light retro: quiet paper surfaces and small modular details. */
+.wrap { max-width: 1360px; padding: 0 32px 48px; gap: 26px; }
+.topbar { padding: 20px 0; }
+h1 { font-size: clamp(26px, 3vw, 34px); font-weight: 600; letter-spacing: -.035em; }
+h2 { font-size: 17px; font-weight: 600; }
+.report-subtitle { color: var(--muted); margin-top: 8px; font-size: 16px; }
+.file-chip { background: transparent; border-radius: 4px; font: 11px var(--mono); padding: 0; }
+button, .button, select { border-color: var(--line); background: transparent; }
+button.primary { background: var(--key); color: var(--key-ink); border-color: var(--key); box-shadow: 0 2px 0 var(--key-edge); font-weight: 500; }
+.kpis { gap: 0; padding: 12px 0 26px; border-bottom: 1px solid var(--line); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kpi { background: transparent; border: 0; border-radius: 0; padding: 0 24px; gap: 9px; }
+.kpi:first-child { padding-left: 0; }
+.kpi + .kpi { border-left: 1px solid var(--line); }
+.kpi .label { color: var(--ink); display: flex; align-items: center; gap: 12px; font-size: 14px; }
+.kpi .label::before { content: ''; width: 9px; height: 9px; background: var(--brick); box-shadow: 11px 0 var(--brick), 0 -11px var(--brick); margin: 8px 12px 0 0; flex: none; opacity: .8; }
+.kpi:nth-child(2) { --brick: #88aabb; }
+.kpi:nth-child(3) { --brick: #c9937b; }
+.kpi:nth-child(4) { --brick: #98ad83; }
+.kpi .value { font-size: clamp(27px, 3.2vw, 42px); font-weight: 500; letter-spacing: -.04em; }
+.kpi-spark svg { height: 24px; }
+.filters { border: 0; border-radius: 0; padding: 12px 0; background: var(--page); gap: 16px; }
+.segmented { border: 0; gap: 4px; }
+.segmented button { border-radius: 6px; }
+.segmented button + button { border-left: 0; }
+.segmented button[aria-pressed="true"] { background: var(--key); color: var(--key-ink); font-weight: 500; }
+.card:not(.kpi) { border-radius: 9px; padding: 24px; background: transparent; gap: 18px; }
+.row { gap: 22px; }
+.quality { padding: 10px 0; border-radius: 0; gap: 10px; }
+.quality.ok { background: transparent; border: 0; }
+.quality.warn { border: 0; border-left: 3px solid var(--warn-line); padding-left: 14px; background: transparent; color: var(--ink); }
+.quality strong { font-weight: 500; }
+.quality .button { font-weight: 500; font-size: 12px; }
+#trend-title::before, #routes-title::before { content: '01'; font: 11px var(--mono); color: var(--muted); margin-right: 12px; }
+#routes-title::before { content: '03'; }
+#cancel-title::before, #class-title::before { content: '02'; font: 11px var(--mono); color: var(--muted); margin-right: 12px; }
+#class-title::before { content: '04'; }
+.table-box { border: 0; }
+th { background: var(--head); }
+th button { font: 11px var(--mono); }
+td { padding: 14px 12px; }
+td:first-child, td.num { font-family: var(--mono); font-size: 12px; }
+.status::before { background: #86a375; }
+.status.cancelled::before { background: var(--series-2); }
+.track { height: 15px; }
+input[type="search"] { background: transparent; border-color: var(--line); }
+svg text { font-family: var(--mono); font-size: 10px; }
+@media (max-width: 800px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; } .kpi:nth-child(3) { border-left: 0; padding-left: 0; } }
+@media (max-width: 640px) { .wrap { padding: 0 16px 32px; gap: 20px; } .kpi { padding: 0 12px; } .card:not(.kpi) { padding: 16px; } .filters { gap: 10px; } .file-chip { width: 100%; flex-wrap: wrap; } .file-chip strong { max-width: 100%; } .kpi .label { font-size: 12px; } .kpi .sub { font-size: 11px; } }
+@media print { .wrap { max-width: none; padding: 0; gap: 14px; } .kpi .value { font-size: 28px; } .filters { position: static; } }
 </style>
 </head>
 <body>
@@ -171,33 +221,9 @@ footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-betwee
 </header>
 
 <div class="title">
-  <h1>Train bookings report</h1>
+  <div><h1>Bookings overview</h1><p class="report-subtitle">A clearer view of your railway bookings.</p></div>
   <p class="meta" id="view-note">All bookings</p>
 </div>
-
-<section class="filters" aria-label="Filters">
-  <div class="segmented control" role="group" aria-label="Period" id="period" hidden></div>
-  <label class="control">Route <select id="route-filter"><option value="">All routes</option></select></label>
-  <label class="control">Class <select id="class-filter"><option value="">All classes</option></select></label>
-  <span class="spacer"></span>
-  <button type="button" id="reset" hidden>Clear filters</button>
-</section>
-
-{% if skipped %}
-<section class="quality warn" aria-label="Data quality">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-  <div>
-    <strong>Warning: {{ skipped | length }} row{{ "s were" if skipped | length != 1 else " was" }} skipped and {{ "are" if skipped | length != 1 else "is" }} not in these totals</strong>
-    <span>{% for reason, count in skipped_reasons %}{{ count }} × {{ reason }}{{ " · " if not loop.last }}{% endfor %}</span>
-  </div>
-  <a class="button" href="#skipped">Review skipped rows</a>
-</section>
-{% else %}
-<section class="quality ok" aria-label="Data quality">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m8 12 3 3 5-6"></path></svg>
-  <div><strong>All {{ rows_read | number }} rows used.</strong><span class="note">Every row passed the checks, so nothing is missing from these totals.</span></div>
-</section>
-{% endif %}
 
 <section class="kpis" aria-label="Headline numbers">
   <div class="card kpi">
@@ -226,6 +252,32 @@ footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-betwee
     <span class="delta" id="kpi-loyalty-delta"></span>
   </div>
 </section>
+
+<section class="filters" aria-label="Filters">
+  <div class="segmented control" role="group" aria-label="Period" id="period" hidden></div>
+  <label class="control">Route <select id="route-filter"><option value="">All routes</option></select></label>
+  <label class="control">Class <select id="class-filter"><option value="">All classes</option></select></label>
+  <span class="spacer"></span>
+  <button type="button" id="reset" hidden>Clear filters</button>
+</section>
+
+{% if skipped %}
+<section class="quality warn" aria-label="Data quality">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+  <div>
+    <strong>Warning: {{ skipped | length }} row{{ "s were" if skipped | length != 1 else " was" }} skipped and {{ "are" if skipped | length != 1 else "is" }} not in these totals</strong>
+    <span>{% for reason, count in skipped_reasons %}{{ count }} × {{ reason }}{{ " · " if not loop.last }}{% endfor %}</span>
+  </div>
+  <a class="button" href="#skipped">Review skipped rows</a>
+</section>
+{% else %}
+<section class="quality ok" aria-label="Data quality">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m8 12 3 3 5-6"></path></svg>
+  <div><strong>All {{ rows_read | number }} rows used.</strong><span class="note">Every row passed the checks, so nothing is missing from these totals.</span></div>
+</section>
+{% endif %}
+
+
 
 <noscript><p class="note">Turn on JavaScript to see the charts, filters and bookings table.</p></noscript>
 
@@ -781,3 +833,4 @@ footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-betwee
 </script>
 </body>
 </html>
+
