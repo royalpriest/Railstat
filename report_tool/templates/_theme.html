@@ -1,4 +1,5 @@
 {# Shared look: Space Mono, light/dark tokens, and the theme switcher. Included in <head>. #}
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232a78d6%22/%3E%3Cpath d=%22M6.5 24.5H11L16 19.5H19L25.5 13%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Ccircle cx=%226.5%22 cy=%2224.5%22 r=%222.6%22 fill=%22%232a78d6%22 stroke=%22%23fff%22 stroke-width=%222%22/%3E%3Ccircle cx=%2225.5%22 cy=%2213%22 r=%223.4%22 fill=%22%23fff%22/%3E%3Ccircle cx=%2225.5%22 cy=%2213%22 r=%221.4%22 fill=%22%232a78d6%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -58,5 +59,10 @@
   :root:not([data-theme="light"]) .theme-toggle .sun { display: none; }
   :root:not([data-theme="light"]) .theme-toggle .moon { display: inline; }
 }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -0.01em;
+  color: var(--ink); text-decoration: none; }
+.brand-mark { display: inline-flex; }
+.brand-mark svg { display: block; }
+.brand-accent { color: var(--series-1); }
 @media print { .theme-toggle { display: none; } }
 </style>
