@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="report-tool {{ version }}">
+<title>Train bookings report · {{ source }}</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f4f4f1; --surface: #ffffff; --ink: #0b0b0b; --ink-2: #52514e; --muted: #6b6a65;
+  --line: #e1e0d9; --axis: #c3c2b7; --head: #f4f4f1;
+  --series-1: #2a78d6; --series-2: #eb6834;
+  --warn-bg: #fff7e3; --warn-line: #f0d48a; --warn-ink: #4a3000;
+  --chip: #e1e0d9; --focus: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #a3a29b;
+    --line: #2c2c2a; --axis: #4a4a46; --head: #222220;
+    --series-1: #3987e5; --series-2: #d95926;
+    --warn-bg: #2b2210; --warn-line: #6b5420; --warn-ink: #f5dfa8;
+    --chip: #383835; --focus: #6da7ec;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 32px 20px 48px; display: flex; flex-direction: column; gap: 20px; }
+h1 { margin: 0; font-size: 28px; line-height: 1.2; text-wrap: balance; }
+h2 { margin: 0; font-size: 17px; }
+p { margin: 0; }
+.meta, .note { color: var(--ink-2); font-size: 14px; }
+.note { font-size: 13px; }
+.chip { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--chip); }
+header { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between; }
+.title { display: flex; flex-direction: column; gap: 6px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+button, .button { min-height: 44px; padding: 0 16px; font: inherit; font-size: 14px; font-weight: 500;
+  border-radius: 8px; border: 1px solid var(--axis); background: var(--surface); color: var(--ink); cursor: pointer;
+  display: inline-flex; align-items: center; text-decoration: none; }
+button.primary { background: var(--ink); color: var(--page); border-color: var(--ink); }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px;
+  display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.warning { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; background: var(--warn-bg);
+  border: 1px solid var(--warn-line); border-radius: 12px; padding: 14px 18px; color: var(--warn-ink); }
+.warning div { flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.warning .button { border-color: var(--warn-line); color: var(--warn-ink); font-weight: 600; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.kpi { gap: 4px; }
+.kpi .label { color: var(--ink-2); font-size: 14px; font-weight: 500; }
+.kpi .value { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.kpi .sub { color: var(--ink-2); font-size: 13px; }
+.row { display: flex; flex-wrap: wrap; gap: 16px; }
+.row > .wide { flex: 3 1 520px; }
+.row > .narrow { flex: 2 1 320px; }
+.chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; }
+.legend { display: flex; gap: 16px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.s1 { background: var(--series-1); } .s2 { background: var(--series-2); }
+.bars { display: grid; grid-template-columns: minmax(90px, 180px) minmax(0, 1fr) auto; gap: 12px; align-items: center; font-size: 14px; }
+.track { display: flex; gap: 2px; height: 20px; }
+.track div:last-child { border-radius: 0 4px 4px 0; }
+.track div { min-width: 0; }
+.track .zero { display: none; }
+.val { font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
+.axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted);
+  font-variant-numeric: tabular-nums; border-top: 1px solid var(--axis); padding-top: 4px; }
+svg text { fill: var(--muted); font-size: 12px; }
+svg .grid { stroke: var(--line); } svg .base { stroke: var(--axis); }
+svg .line { stroke: var(--series-1); fill: none; stroke-width: 2; stroke-linejoin: round; }
+svg .area { fill: var(--series-1); fill-opacity: 0.08; }
+svg .dot { fill: var(--series-1); stroke: var(--surface); stroke-width: 2; }
+svg .peak-label { fill: var(--ink); font-weight: 600; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.segmented { display: inline-flex; border: 1px solid var(--axis); border-radius: 8px; overflow: hidden; }
+.segmented button { border: 0; border-radius: 0; min-height: 40px; }
+.segmented button + button { border-left: 1px solid var(--axis); }
+.segmented button[aria-pressed="true"] { background: var(--ink); color: var(--page); }
+input[type="search"] { flex: 1 1 220px; min-width: 0; min-height: 40px; padding: 0 12px; font: inherit; font-size: 14px;
+  border: 1px solid var(--axis); border-radius: 8px; background: var(--surface); color: var(--ink); }
+.table-box { overflow: auto; max-height: 560px; border: 1px solid var(--line); border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { position: sticky; top: 0; background: var(--head); text-align: left; font-weight: 600; color: var(--ink-2); }
+th, td { padding: 10px 12px; white-space: nowrap; }
+tbody { font-variant-numeric: tabular-nums; }
+tbody tr { border-top: 1px solid var(--line); }
+.num { text-align: right; }
+.mono { font-family: ui-monospace, "SF Mono", Consolas, monospace; }
+.status { display: inline-flex; align-items: center; gap: 6px; }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--series-1); }
+.status.cancelled::before { background: var(--series-2); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; color: var(--ink-2); font-size: 13px; }
+@media (max-width: 600px) {
+  .bars { grid-template-columns: minmax(0, 1fr) auto; row-gap: 4px; }
+  .bars .name { grid-column: 1 / -1; margin-top: 6px; }
+  .bars .spacer { display: none; }
+  svg text { font-size: 26px; }
+}
+@media print {
+  body { background: #fff; }
+  .actions, .toolbar, .warning .button { display: none; }
+  .table-box { max-height: none; overflow: visible; }
+  .card, .warning { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header>
+  <div class="title">
+    <h1>Train bookings report</h1>
+    <p class="meta">{{ source }} · {{ rows_read | number }} rows read · Generated {{ generated_at.strftime("%d %b %Y, %H:%M") }}</p>
+  </div>
+  <div class="actions">
+    <button type="button" id="export-csv">Export CSV</button>
+    <button type="button" class="primary" id="print">Print / Save PDF</button>
+  </div>
+</header>
+
+{% if skipped %}
+<section class="warning" aria-label="Data quality">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+  <div>
+    <strong>Warning: {{ skipped | length }} row{{ "s were" if skipped | length != 1 else " was" }} skipped and {{ "are" if skipped | length != 1 else "is" }} not in these totals</strong>
+    <span>{% for reason, count in skipped_reasons %}{{ count }} × {{ reason }}{{ " · " if not loop.last }}{% endfor %}</span>
+  </div>
+  <a class="button" href="#skipped">Review skipped rows</a>
+</section>
+{% endif %}
+
+<section class="kpis" aria-label="Summary">
+  <div class="card kpi">
+    <span class="label">Net revenue</span>
+    <span class="value">{{ s.net_revenue | money }}</span>
+    <span class="sub">after {{ s.total_discount | money }} in discounts</span>
+  </div>
+  <div class="card kpi">
+    <span class="label">Confirmed tickets</span>
+    <span class="value">{{ s.confirmed_tickets | number }}</span>
+    <span class="sub">of {{ s.valid_bookings | number }} valid bookings · avg {{ s.average_net_ticket | money }}</span>
+  </div>
+  <div class="card kpi">
+    <span class="label">Cancellation rate</span>
+    <span class="value">{{ "%.1f" | format(s.cancellation_rate * 100) }}%</span>
+    <span class="sub">{{ s.cancellations | number }} booking{{ "s" if s.cancellations != 1 }} cancelled</span>
+  </div>
+  <div class="card kpi">
+    <span class="label">Loyalty members</span>
+    {% if loyalty_known %}
+    <span class="value">{{ "%.0f" | format(loyalty_pct) }}%</span>
+    <span class="sub">{{ s.loyalty_members | number }} of {{ loyalty_known | number }} confirmed tickets{% if s.loyalty_unknown %} · {{ s.loyalty_unknown }} unknown{% endif %}</span>
+    {% else %}
+    <span class="value">n/a</span>
+    <span class="sub">no loyalty data in the file</span>
+    {% endif %}
+  </div>
+</section>
+
+<div class="row">
+  <section class="card wide" aria-labelledby="routes-title">
+    <div class="chart-head">
+      <h2 id="routes-title">Bookings by route</h2>
+      <div class="legend"><span><i class="swatch s1"></i>Confirmed</span><span><i class="swatch s2"></i>Cancelled</span></div>
+    </div>
+    <p class="note">Busiest first. Labels show confirmed · cancelled.</p>
+    <div class="bars">
+      {% for r in route_bars %}
+      <span class="name">{{ r.name }}</span>
+      <div class="track">
+        <div class="s1{{ ' zero' if not r.confirmed }}" style="width: {{ r.confirmed_pct }}%" title="{{ r.name }}: {{ r.confirmed }} confirmed"></div>
+        <div class="s2{{ ' zero' if not r.cancelled }}" style="width: {{ r.cancelled_pct }}%" title="{{ r.name }}: {{ r.cancelled }} cancelled"></div>
+      </div>
+      <span class="val">{{ r.confirmed }} · {{ r.cancelled }}</span>
+      {% endfor %}
+      <span class="spacer"></span>
+      <div class="axis" aria-hidden="true">{% for t in route_ticks %}<span>{{ t | number }}</span>{% endfor %}</div>
+      <span class="spacer"></span>
+    </div>
+  </section>
+
+  <section class="card narrow" aria-labelledby="class-title">
+    <h2 id="class-title">Confirmed tickets by class</h2>
+    <p class="note">{{ s.confirmed_tickets | number }} tickets</p>
+    <div class="bars">
+      {% for c in class_bars %}
+      <span class="name">{{ c.name }}</span>
+      <div class="track"><div class="s1" style="width: {{ c.pct }}%" title="{{ c.name }}: {{ c.count }}"></div></div>
+      <span class="val">{{ c.count }}</span>
+      {% endfor %}
+      <span class="spacer"></span>
+      <div class="axis" aria-hidden="true">{% for t in class_ticks %}<span>{{ t | number }}</span>{% endfor %}</div>
+      <span class="spacer"></span>
+    </div>
+  </section>
+</div>
+
+<section class="card" aria-labelledby="trend-title">
+  <div class="chart-head">
+    <h2 id="trend-title">Net revenue by week</h2>
+    {% if line %}<span class="note">Highest: week of {{ line.peak.week_start | day }}, {{ line.peak.revenue | money }}</span>{% endif %}
+  </div>
+  {% if line %}
+  <svg viewBox="0 0 {{ line.width }} {{ line.height }}" width="100%" role="img"
+       aria-label="Weekly net revenue from {{ line.points[0].week_start.strftime('%d %b %Y') }} to {{ line.points[-1].week_start.strftime('%d %b %Y') }}">
+    {% for value, y in line.y_ticks %}
+    <line class="{{ 'base' if loop.first else 'grid' }}" x1="{{ line.left }}" y1="{{ y }}" x2="{{ line.width - 24 }}" y2="{{ y }}"></line>
+    <text x="{{ line.left - 8 }}" y="{{ y + 4 }}" text-anchor="end">{{ value | short_money }}</text>
+    {% endfor %}
+    <path class="area" d="{{ line.area_path }}"></path>
+    <polyline class="line" points="{{ line.polyline }}"></polyline>
+    {% for p in line.points %}
+    <circle class="dot" cx="{{ p.x }}" cy="{{ p.y }}" r="{{ 6 if p is sameas line.peak else 4 }}"><title>Week of {{ p.week_start | day }}: {{ p.revenue | money }}</title></circle>
+    {% if p.labelled %}<text x="{{ p.x }}" y="{{ line.bottom + 22 }}" text-anchor="middle">{{ p.week_start | day }}</text>{% endif %}
+    {% endfor %}
+  </svg>
+  {% else %}
+  <p class="note">Not enough dated bookings to show a trend (needs at least two weeks).</p>
+  {% endif %}
+</section>
+
+<section class="card" aria-labelledby="table-title">
+  <h2 id="table-title">All bookings</h2>
+  <div class="toolbar">
+    <div class="segmented" role="group" aria-label="Filter by status">
+      <button type="button" data-filter="all" aria-pressed="true">All {{ s.valid_bookings }}</button>
+      <button type="button" data-filter="confirmed" aria-pressed="false">Confirmed {{ s.confirmed_tickets }}</button>
+      <button type="button" data-filter="cancelled" aria-pressed="false">Cancelled {{ s.cancellations }}</button>
+    </div>
+    <label for="search" class="sr-only">Search bookings</label>
+    <input id="search" type="search" placeholder="Search ticket, route, class or date">
+  </div>
+  <div class="table-box">
+    <table id="bookings">
+      <thead><tr>
+        <th scope="col">Ticket</th><th scope="col">Passenger</th><th scope="col">Route</th><th scope="col">Class</th>
+        <th scope="col" class="num">Net price</th><th scope="col">Date</th><th scope="col">Status</th>
+      </tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr data-status="{{ r.status }}">
+          <td class="mono">{{ r.ticket_id }}</td><td>{{ r.passenger }}</td><td>{{ r.route }}</td><td>{{ r.ticket_class }}</td>
+          <td class="num">{{ r.net_price | money if r.net_price is not none else "—" }}</td>
+          <td>{{ r.date.isoformat() if r.date else "—" }}</td>
+          <td><span class="status {{ r.status }}">{{ r.status | capitalize }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="note" id="table-count">Showing {{ rows | length }} of {{ rows | length }} bookings.{% if not show_names %} Passenger names are masked; run with --show-names to include them.{% endif %}</p>
+</section>
+
+{% if skipped %}
+<section class="card" id="skipped" aria-labelledby="skipped-title">
+  <h2 id="skipped-title">Skipped rows ({{ skipped | length }})</h2>
+  <div class="table-box">
+    <table>
+      <thead><tr><th scope="col">Excel row</th><th scope="col">Ticket</th><th scope="col">Reason</th><th scope="col">Value found</th></tr></thead>
+      <tbody>
+        {% for item in skipped %}
+        <tr><td>{{ item.row }}</td><td class="mono">{{ item.ticket_id or "—" }}</td><td>{{ item.reason }}</td><td class="mono">{{ item.value }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if skipped_csv_name %}<p class="note">The same list is saved as {{ skipped_csv_name }} next to this report.</p>{% endif %}
+</section>
+{% endif %}
+
+<footer>
+  <span>One file, opens in any browser and works offline.</span>
+  <span>report-tool {{ version }} · source sha256 {{ source_hash }}</span>
+</footer>
+</main>
+
+<script>
+(function () {
+  var table = document.getElementById("bookings");
+  var rows = Array.prototype.slice.call(table.tBodies[0].rows);
+  var buttons = document.querySelectorAll("[data-filter]");
+  var search = document.getElementById("search");
+  var count = document.getElementById("table-count");
+  var note = count.textContent.replace(/^Showing \d+ of \d+ bookings\./, "");
+  var filter = "all";
+
+  function apply() {
+    var q = search.value.trim().toLowerCase();
+    var shown = 0;
+    rows.forEach(function (row) {
+      var visible = (filter === "all" || row.dataset.status === filter) &&
+        (!q || row.textContent.toLowerCase().indexOf(q) !== -1);
+      row.hidden = !visible;
+      if (visible) shown++;
+    });
+    count.textContent = "Showing " + shown + " of " + rows.length + " bookings." + note;
+  }
+
+  buttons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      filter = button.dataset.filter;
+      buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b === button)); });
+      apply();
+    });
+  });
+  search.addEventListener("input", apply);
+
+  document.getElementById("print").addEventListener("click", function () { window.print(); });
+  document.getElementById("export-csv").addEventListener("click", function () {
+    var lines = [Array.prototype.map.call(table.tHead.rows[0].cells, function (c) { return c.textContent; })];
+    rows.forEach(function (row) {
+      if (!row.hidden) lines.push(Array.prototype.map.call(row.cells, function (c) { return c.textContent.trim(); }));
+    });
+    var csv = lines.map(function (cells) {
+      return cells.map(function (v) {
+        if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; // stop spreadsheet apps running cell text as a formula
+        return '"' + v.replace(/"/g, '""') + '"';
+      }).join(",");
+    }).join("\r\n");
+    var link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    link.download = "bookings.csv";
+    link.click();
+    setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000);
+  });
+})();
+</script>
+</body>
+</html>
