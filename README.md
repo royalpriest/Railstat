@@ -18,7 +18,16 @@ In a Security Operations Center (SOC), analysts must often parse through massive
 - **Automated ingestion:** reads the active sheet of an `.xlsx` workbook with openpyxl, matching columns by header name, so the column order doesn't matter.
 - **Row-level validation:** bad rows are skipped and listed with their Excel row number, ticket ID and reason.
 - **Exact money math:** prices, discounts and revenue use `Decimal`, rounded to cents.
-- **HTML dashboard report (default):** one self-contained file such as `reports/booking_summary_20261031_140211.html` that opens in any browser, offline. It shows the headline numbers first (net revenue, confirmed tickets, cancellation rate, loyalty share), a warning when rows were skipped, bookings by route and by class, net revenue by week, and a table of every booking you can filter by status and search. It has Export CSV and Print / Save PDF buttons, follows the system's light or dark mode, and works on a phone.
+- **HTML dashboard report (default):** one self-contained file such as `reports/booking_summary_20261031_140211.html` that opens in any browser. It contains:
+  - filters for period (all weeks, or the last few weeks), route and class;
+  - headline numbers (net revenue, confirmed tickets, cancellation rate, loyalty share), each showing its change against the previous period;
+  - a line saying whether every row was used;
+  - weekly net revenue, with the compared weeks shaded and the high and low weeks labelled;
+  - cancellation rate by route, measured against the average;
+  - bookings by route and by class;
+  - a bookings table you can sort, search and page through.
+
+  It has Export CSV and Print / Save PDF buttons and a light/dark switch, uses the Space Mono font (falling back to the system monospace font offline), and works on a phone.
 - **Text report:** `--format txt` (or `both`) writes the same figures as plain text.
 - **Skipped rows:** listed in the report and saved next to it as `..._skipped_rows.csv`.
 - **Privacy by default:** passenger names are masked (`Maria Gonzalez` becomes `M. G•••••••`) and full names are never written to the file unless you pass `--show-names`. Spreadsheet text is HTML-escaped, and CSV cells that could run as spreadsheet formulas are neutralised.
@@ -54,7 +63,7 @@ python samples/make_sample.py   # regenerate the sample workbook
 `Project.ipynb` is the original notebook version, kept for reference. The maintained code is in `report_tool/`.
 
 ### Web app (Vercel)
-`app.py` is a small Flask app: upload an `.xlsx` (up to 4 MB) and it returns the HTML dashboard, or open `/sample` to see the sample report. Uploads are processed in a temporary file that is deleted straight away; nothing is stored. Passenger names stay masked unless the "Show full passenger names" box is ticked.
+`app.py` is a small Flask app. The landing page explains the tool, shows a preview built from the sample file, and takes an `.xlsx` upload (up to 4 MB, drag and drop or browse) that returns the HTML dashboard. `/sample` shows the sample report and `/template.xlsx` downloads a blank workbook with the right headers. Upload problems (wrong file type, missing columns, no usable rows) are explained in plain words with how to fix them. The page uses the Space Mono font and has a light/dark switch that remembers your choice. Uploads are processed in a temporary file that is deleted straight away; nothing is stored. Passenger names stay masked unless the "Show full passenger names" box is ticked.
 
 ```bash
 flask --app app run          # http://127.0.0.1:5000

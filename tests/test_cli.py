@@ -108,7 +108,7 @@ def test_html_is_the_default_and_skipped_rows_csv_is_written(make_workbook, tmp_
     ]
     html = (out / "booking_summary_20261031_140211.html").read_text(encoding="utf-8")
     assert "1 row was skipped" in html
-    assert "A. L••" in html and "Ann Lee" not in html
+    assert r"A. L\u2022\u2022" in html and "Ann Lee" not in html
     csv_text = (out / "booking_summary_20261031_140211_skipped_rows.csv").read_text(encoding="utf-8")
     assert csv_text.splitlines() == [
         "excel_row,ticket_id,reason,value_found",

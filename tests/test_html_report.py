@@ -1,8 +1,10 @@
 import datetime as dt
+import json
+import re
 from decimal import Decimal
 
-from report_tool.charts import line_chart, nice_axis, nice_max, weekly_revenue
-from report_tool.html_report import render_html
+from report_tool.charts import weekly_revenue
+from report_tool.html_report import all_weeks, dashboard_data, render_html
 from report_tool.loader import Booking, SkippedRow
 from report_tool.summary import summarize
 
@@ -40,17 +42,86 @@ def render(bookings, skipped=(), **kwargs):
 def test_spreadsheet_text_is_escaped():
     html = render([booking("<script>alert(1)</script>", route="<b>A</b>")], show_names=True)
     assert "<script>alert(1)</script>" not in html
-    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html
-    assert "&lt;b&gt;A&lt;/b&gt;" in html
+    assert "<b>A</b>" not in html
+    # The embedded data escapes < and > so spreadsheet text can't close the script tag.
+    assert "\\u003cscript\\u003ealert(1)\\u003c/script\\u003e" in html
+    assert embedded(html)["bookings"][0]["t"] == "<script>alert(1)</script>"
+
+
+def embedded(html):
+    match = re.search(r'<script type="application/json" id="report-data">(.*?)</script>', html, re.S)
+    return json.loads(match.group(1))
 
 
 def test_kpis_and_masking():
     html = render([booking("1", price="1200"), booking("2", status="cancelled")])
     assert "$1,200.00" in html
     assert "50.0%" in html
-    assert "A. L••" in html and "Ann Lee" not in html
-    assert "run with --show-names" in html
+    assert embedded(html)["bookings"][0]["p"] == "A. L••" and "Ann Lee" not in html
     assert "abab…abab" in html
+    assert "run with --show-names" in html
+    assert "Space Mono" in html and 'id="theme-toggle"' in html
+    assert "All 2 rows used." in html
+
+
+def test_upload_link_only_in_web_app_mode():
+    assert 'href="/"' not in render([booking("1")])
+    assert 'href="/"' in render([booking("1")], upload_url="/")
+
+
+def test_dashboard_data_is_compact_and_masked():
+    data = dashboard_data(
+        [
+            booking("1", price="85.50", date=dt.date(2026, 9, 9)),
+            booking("2", status="cancelled", date=dt.date(2026, 9, 23)),
+            booking("3", date=None),
+        ],
+        show_names=False,
+    )
+    assert data["weeks"] == ["2026-09-07", "2026-09-14", "2026-09-21"]
+    first = data["bookings"][0]
+    assert first == {
+        "t": "1",
+        "p": "A. L••",
+        "r": "A-B",
+        "c": "Economy",
+        "s": "confirmed",
+        "d": "2026-09-09",
+        "w": 0,
+        "price": 8550,
+        "disc": 0.0,
+        "net": 8550,
+        "loy": True,
+    }
+    assert data["bookings"][1]["w"] == 2
+    assert data["bookings"][2]["w"] is None  # undated bookings sort last
+
+
+def test_discount_is_kept_in_cents():
+    b = Booking(
+        row=2,
+        ticket_id="1",
+        passenger="A",
+        route="R",
+        ticket_class="E",
+        price=Decimal("85.50"),
+        status="confirmed",
+        date=None,
+        discount_pct=Decimal("10"),
+        loyalty=None,
+    )
+    row = dashboard_data([b], show_names=True)["bookings"][0]
+    assert (row["price"], row["net"], row["disc"]) == (8550, 7695, 10.0)
+
+
+def test_all_weeks_fills_gaps():
+    assert all_weeks([booking("1", date=dt.date(2026, 9, 13)), booking("2", date=dt.date(2026, 9, 28))]) == [
+        dt.date(2026, 9, 7),
+        dt.date(2026, 9, 14),
+        dt.date(2026, 9, 21),
+        dt.date(2026, 9, 28),
+    ]
+    assert all_weeks([booking("1", date=None)]) == []
 
 
 def test_skipped_banner_only_when_rows_were_skipped():
@@ -59,12 +130,6 @@ def test_skipped_banner_only_when_rows_were_skipped():
     assert "Warning: 1 row was skipped and is not in these totals" in html
     assert "1 × Unknown status" in html
     assert 'id="skipped"' in html
-
-
-def test_trend_needs_two_weeks():
-    assert "Not enough dated bookings" in render([booking("1")])
-    html = render([booking("1"), booking("2", date=dt.date(2026, 9, 22))])
-    assert "<polyline" in html
 
 
 def test_weekly_revenue_fills_gaps_and_ignores_cancelled():
@@ -82,20 +147,3 @@ def test_weekly_revenue_fills_gaps_and_ignores_cancelled():
         (dt.date(2026, 9, 14), Decimal("0.00")),
         (dt.date(2026, 9, 21), Decimal("100")),
     ]
-
-
-def test_line_chart_geometry():
-    chart = line_chart([(dt.date(2026, 9, 7), Decimal("1000")), (dt.date(2026, 9, 14), Decimal("2000"))])
-    assert [p.y for p in chart.points] == [chart.bottom - (chart.bottom - chart.top) / 2, chart.top]
-    assert chart.peak.revenue == Decimal("2000")
-
-
-def test_nice_max():
-    assert [nice_max(v) for v in (0, 7, 73, 118, 2831.4, 10)] == [1, 10, 100, 200, 5000, 10]
-
-
-def test_nice_axis_gives_round_steps():
-    assert nice_axis(25, integer=True) == 40  # ticks 0, 10, 20, 30, 40
-    assert nice_axis(3, integer=True) == 4  # never fractional ticks for counts
-    assert nice_axis(1530.57) == 2000
-    assert nice_axis(0, integer=True) == 4
