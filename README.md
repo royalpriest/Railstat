@@ -52,3 +52,12 @@ python samples/make_sample.py   # regenerate the sample workbook
 ```
 
 `Project.ipynb` is the original notebook version, kept for reference. The maintained code is in `report_tool/`.
+
+### Web app (Vercel)
+`app.py` is a small Flask app: upload an `.xlsx` (up to 4 MB) and it returns the HTML dashboard, or open `/sample` to see the sample report. Uploads are processed in a temporary file that is deleted straight away; nothing is stored. Passenger names stay masked unless the "Show full passenger names" box is ticked.
+
+```bash
+flask --app app run          # http://127.0.0.1:5000
+```
+
+On Vercel it deploys with no extra configuration: Vercel finds `app.py` and installs the dependencies from `pyproject.toml`.
