@@ -24,6 +24,14 @@ COLUMNS: dict[str, tuple[str, ...]] = {
     "loyalty": ("loyaltymember", "loyalty member", "loyalty"),
 }
 REQUIRED = ("ticket_id", "passenger", "route", "ticket_class", "price", "status")
+LABELS = {
+    "ticket_id": "TicketID",
+    "passenger": "PassengerName",
+    "route": "Route",
+    "ticket_class": "Class",
+    "price": "Price",
+    "status": "Status",
+}
 
 STATUSES = {"confirmed": "confirmed", "cancelled": "cancelled", "canceled": "cancelled"}
 YES = {"yes", "y", "true", "1"}
@@ -32,6 +40,19 @@ NO = {"no", "n", "false", "0"}
 
 class WorkbookError(Exception):
     """The workbook can't be read, or it's missing required columns."""
+
+
+class NotAWorkbookError(WorkbookError):
+    """The file isn't a readable .xlsx workbook."""
+
+
+class MissingColumnsError(WorkbookError):
+    """The header row lacks one or more required columns."""
+
+    def __init__(self, message: str, missing: list[str], found: list[str]):
+        super().__init__(message)
+        self.missing = missing
+        self.found = found
 
 
 @dataclass(frozen=True)
@@ -87,10 +108,15 @@ def map_headers(header_row: tuple[object, ...]) -> dict[str, int]:
             if spelling in found:
                 mapping[name] = found[spelling]
                 break
-    missing = [COLUMNS[name][0] for name in REQUIRED if name not in mapping]
+    missing = [LABELS[name] for name in REQUIRED if name not in mapping]
     if missing:
-        raise WorkbookError(
-            "Missing required column(s): " + ", ".join(missing) + ". Check the first row of the sheet."
+        present = [str(cell).strip() for cell in header_row if cell is not None and str(cell).strip()]
+        found = ", ".join(present) if present else "nothing"
+        raise MissingColumnsError(
+            f"Missing required column{'s' if len(missing) > 1 else ''}: {', '.join(missing)}. "
+            f"The first row has: {found}.",
+            missing=missing,
+            found=present,
         )
     return mapping
 
@@ -212,7 +238,7 @@ def load_bookings(path: str | Path) -> LoadResult:
     try:
         workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
     except (InvalidFileException, zipfile.BadZipFile, KeyError, OSError) as exc:
-        raise WorkbookError(f"Could not open {path} as an Excel .xlsx workbook ({exc}).") from exc
+        raise NotAWorkbookError(f"Could not open {path} as an Excel .xlsx workbook ({exc}).") from exc
 
     try:
         rows = workbook.active.iter_rows(values_only=True)

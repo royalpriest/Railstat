@@ -20,7 +20,7 @@ report-tool = "report_tool.cli:main"
 packages = ["report_tool"]
 
 [tool.setuptools.package-data]
-report_tool = ["templates/*.j2"]
+report_tool = ["templates/*.j2", "templates/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

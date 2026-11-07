@@ -80,7 +80,10 @@ def test_missing_required_column_is_a_clear_error(make_workbook):
         [["TB-1", "Ann", "A-B", "Economy", 10]],
         header=["TicketID", "PassengerName", "Route", "Class", "Price"],
     )
-    with pytest.raises(WorkbookError, match="status"):
+    with pytest.raises(
+        WorkbookError,
+        match="Missing required column: Status. The first row has: TicketID, PassengerName,",
+    ):
         load_bookings(path)
 
 

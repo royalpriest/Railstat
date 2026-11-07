@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Railstat · Turn a bookings spreadsheet into a dashboard</title>
+<meta name="description" content="Upload a train bookings Excel file and get a dashboard of revenue, cancellations and routes. Nothing is stored.">
+{% include "_theme.html" %}
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.6 var(--font); }
+a { color: var(--accent-ink); }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+h1, h2, h3, p { margin: 0; }
+h1, h2 { text-wrap: balance; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* header */
+.site-header { background: var(--surface); border-bottom: 1px solid var(--line); }
+.site-header .wrap { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding-top: 12px; padding-bottom: 12px; }
+.logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--ink); text-decoration: none; }
+.logo-mark { width: 28px; height: 28px; border-radius: 7px; background: var(--ink); display: inline-flex; align-items: center; justify-content: center; }
+nav { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; font-size: 14px; }
+nav a { color: var(--ink); text-decoration: none; }
+nav a:hover { text-decoration: underline; }
+@media (max-width: 640px) { .nav-section { display: none; } nav { gap: 6px 12px; } }
+.btn { min-height: 44px; padding: 0 18px; border-radius: 8px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none; border: 1px solid var(--axis); background: var(--surface); color: var(--ink); }
+.btn-primary { background: var(--ink); color: var(--page); border-color: var(--ink); }
+.btn-small { min-height: 40px; padding: 0 14px; font-weight: 400; }
+.btn-link { min-height: 40px; padding: 0 10px; border: 1px solid transparent; background: transparent; color: var(--accent-ink); font-weight: 400; }
+.btn[disabled] { opacity: 0.75; cursor: progress; }
+
+/* hero */
+main { display: flex; flex-direction: column; gap: 80px; padding-bottom: 64px; }
+.hero { display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start; padding-top: 56px; }
+.hero-copy { flex: 1 1 500px; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+.hero h1 { font-size: clamp(30px, 4.2vw, 44px); line-height: 1.12; letter-spacing: -0.03em; }
+.lead { font-size: 16px; color: var(--ink-2); max-width: 56ch; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; padding: 5px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--ink-2); }
+
+/* upload */
+.upload { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.field-label { font-size: 16px; font-weight: 700; }
+.hint { font-size: 13px; color: var(--ink-2); }
+.error { display: flex; gap: 10px; align-items: flex-start; border-left: 4px solid var(--error-line); background: var(--error-bg);
+  color: var(--error-ink); padding: 12px 14px; border-radius: 0 8px 8px 0; font-size: 14px; }
+.error svg { flex: none; margin-top: 2px; }
+.drop { position: relative; border: 2px dashed var(--axis); border-radius: 12px; padding: 26px 20px; display: flex; flex-direction: column;
+  gap: 10px; align-items: center; text-align: center; background: var(--page); transition: border-color 0.15s, background 0.15s; }
+.drop.is-over { border-style: solid; border-color: var(--series-1); background: var(--accent-bg); color: var(--accent-ink); }
+.drop.has-error { border-color: var(--error-line); }
+.drop input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.drop input[type="file"]:focus-visible + .drop-ui .btn { outline: 2px solid var(--focus); outline-offset: 2px; }
+.drop-ui { display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none; }
+.file-row { border: 1px solid var(--axis); border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 10px 14px; align-items: center; background: var(--surface); }
+.file-name { font-weight: 700; overflow-wrap: anywhere; }
+.file-status { font-size: 13px; color: var(--good); display: inline-flex; gap: 6px; align-items: center; }
+.file-actions { display: flex; gap: 2px; flex-wrap: wrap; }
+.progress { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.progress div { width: 40%; height: 100%; background: var(--series-1); border-radius: 3px; animation: slide 1.2s ease-in-out infinite; }
+@keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+@media (prefers-reduced-motion: reduce) { .progress div { animation: none; width: 100%; opacity: 0.5; } }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.check input { width: 18px; height: 18px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.links { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13px; }
+.privacy { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: var(--ink-2); }
+.privacy svg { flex: none; margin-top: 2px; }
+.spinner { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+[hidden] { display: none !important; }
+
+/* preview */
+.preview-col { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+.eyebrow { font-size: 12px; font-weight: 700; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.06em; }
+.preview { padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow); }
+.preview-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; font-size: 13px; }
+.mini-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.mini-kpi { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; }
+.mini-kpi span { font-size: 11px; color: var(--ink-2); }
+.mini-kpi strong { font-size: 20px; letter-spacing: -0.02em; }
+.mini-bars { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); gap: 7px 10px; align-items: center; font-size: 11px; }
+.mini-track { display: flex; gap: 2px; height: 12px; }
+.s1 { background: var(--series-1); } .s2 { background: var(--series-2); border-radius: 0 3px 3px 0; }
+.legend { display: flex; gap: 14px; font-size: 11px; color: var(--ink-2); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.spark { display: block; }
+.spark polyline { fill: none; stroke: var(--series-1); stroke-width: 2; stroke-linejoin: round; }
+.spark line { stroke: var(--axis); }
+
+/* sections */
+.section { display: flex; flex-direction: column; gap: 22px; }
+.section h2 { font-size: 26px; letter-spacing: -0.02em; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.step { padding: 22px; display: flex; flex-direction: column; gap: 8px; }
+.step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: var(--page); font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+.step h3 { font-size: 16px; }
+.step p, .feature p { font-size: 14px; color: var(--ink-2); }
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+.feature { display: flex; flex-direction: column; gap: 6px; }
+.feature h3 { font-size: 15px; }
+.columns { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+.columns-copy { flex: 1 1 300px; display: flex; flex-direction: column; gap: 14px; }
+.columns-copy p { color: var(--ink-2); }
+.table-box { flex: 2 1 520px; min-width: 0; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 460px; }
+th { text-align: left; background: var(--head); color: var(--ink-2); padding: 10px 12px; }
+td { padding: 9px 12px; border-top: 1px solid var(--line); }
+td:last-child { color: var(--ink-2); }
+.tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.tag-req { background: var(--accent-bg); color: var(--accent-ink); }
+.tag-opt { background: var(--chip); color: var(--ink-2); }
+.site-footer { border-top: 1px solid var(--line); background: var(--surface); }
+.site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; padding-top: 20px; padding-bottom: 20px; font-size: 13px; color: var(--ink-2); }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="/">
+      <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 26 26" aria-hidden="true"><polyline points="4,19 10,12 14,15 22,6" fill="none" stroke="#6da7ec" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></span>
+      Railstat
+    </a>
+    <nav aria-label="Main">
+      <a class="nav-section" href="#how">How it works</a>
+      <a class="nav-section" href="#columns">File format</a>
+      <a href="/sample">Sample report</a>
+      <a class="btn btn-small" href="https://github.com/royalpriest/Data-Analysis-Automated-Reporting-Tool">GitHub</a>
+      {% include "_theme_button.html" %}
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="hero-copy">
+      <h1>Turn a bookings spreadsheet into a dashboard in seconds</h1>
+      <p class="lead">Upload an Excel export. Railstat checks every row, flags the ones it can't read, and builds a report of revenue, cancellations and routes you can filter, print or share.</p>
+
+      <form class="card upload" id="upload-form" action="/report" method="post" enctype="multipart/form-data" novalidate>
+        <div>
+          <label class="field-label" for="workbook">Bookings spreadsheet</label>
+          <p class="hint" id="workbook-hint">Excel .xlsx, up to {{ max_mb }} MB. The first row must name the columns.</p>
+        </div>
+
+        <div class="error" id="error" role="alert" {% if not error %}hidden{% endif %}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <div><strong id="error-title">{{ error.title if error else "" }}</strong> <span id="error-text">{{ error.text if error else "" }}</span>
+          {% if error and error.template_link %} <a href="/template.xlsx">Download the template</a>.{% endif %}</div>
+        </div>
+
+        <div class="drop{% if error %} has-error{% endif %}" id="drop">
+          <input id="workbook" name="workbook" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-describedby="workbook-hint" required>
+          <div class="drop-ui">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span id="drop-text">Drag your .xlsx file here, or</span>
+            <span class="btn">Choose file</span>
+          </div>
+        </div>
+
+        <div class="file-row" id="file-row" hidden>
+          <svg width="34" height="40" viewBox="0 0 34 40" aria-hidden="true"><path d="M3 2h20l8 8v28H3z" fill="#e7f3ec" stroke="#1d7a46" stroke-width="1.5"></path><path d="M23 2v8h8" fill="none" stroke="#1d7a46" stroke-width="1.5"></path><text x="17" y="30" text-anchor="middle" font-size="8" font-weight="700" fill="#1d7a46" font-family="sans-serif">XLSX</text></svg>
+          <div>
+            <div class="file-name" id="file-name"></div>
+            <div class="file-status" id="file-status"></div>
+          </div>
+          <div class="file-actions" id="file-actions">
+            <button type="button" class="btn btn-link" id="replace">Replace</button>
+            <button type="button" class="btn btn-link" id="remove">Remove</button>
+          </div>
+          <div class="progress" id="progress" hidden><div></div></div>
+        </div>
+
+        <div class="check"><input id="show_names" name="show_names" type="checkbox"><label for="show_names">Show full passenger names in the report</label></div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary" id="submit">Build report</button>
+          <span class="sr-only" id="status" aria-live="polite"></span>
+        </div>
+        <div class="links"><a href="/template.xlsx">Download the template (.xlsx)</a><a href="/sample">See the sample report</a></div>
+        <p class="privacy"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Processed in memory and deleted straight away. Names are masked unless you tick the box.</p>
+      </form>
+
+      <div class="chips" aria-label="Good to know">
+        <span class="chip">Nothing is stored</span>
+        <span class="chip">Names masked by default</span>
+        <span class="chip">Open source</span>
+      </div>
+    </div>
+
+    <div class="preview-col">
+      <span class="eyebrow">What you get · from the sample file</span>
+      <div class="card preview" aria-label="Preview of the sample report">
+        <div class="preview-head"><strong>Train bookings report</strong><span class="hint">{{ preview.source }}</span></div>
+        <div class="mini-kpis">
+          <div class="mini-kpi"><span>Net revenue</span><strong>{{ preview.revenue }}</strong></div>
+          <div class="mini-kpi"><span>Cancellation rate</span><strong>{{ preview.cancel_rate }}</strong></div>
+        </div>
+        <div class="mini-bars">
+          {% for r in preview.routes %}
+          <span>{{ r.name }}</span>
+          <div class="mini-track"><div class="s1" style="width: {{ r.confirmed_pct }}%"></div>{% if r.cancelled %}<div class="s2" style="width: {{ r.cancelled_pct }}%"></div>{% endif %}</div>
+          {% endfor %}
+        </div>
+        {% if preview.spark %}
+        <svg class="spark" viewBox="0 0 300 70" width="100%" role="img" aria-label="Net revenue by week"><polyline points="{{ preview.spark }}"></polyline><line x1="0" y1="68" x2="300" y2="68"></line></svg>
+        {% endif %}
+        <div class="legend"><span><i class="swatch s1"></i>Confirmed</span><span><i class="swatch s2"></i>Cancelled</span></div>
+      </div>
+      <a href="/sample">Open the full sample report</a>
+    </div>
+  </section>
+
+  <section class="section" id="how" aria-labelledby="how-title">
+    <h2 id="how-title">How it works</h2>
+    <div class="steps">
+      <div class="card step"><span class="step-num">1</span><h3>Export your bookings</h3><p>Save the sheet from your booking system or Excel as .xlsx. Column order doesn't matter.</p></div>
+      <div class="card step"><span class="step-num">2</span><h3>Upload it</h3><p>Every row is checked. Rows Railstat can't read are set aside and listed, never silently dropped.</p></div>
+      <div class="card step"><span class="step-num">3</span><h3>Read, filter, share</h3><p>See revenue, cancellations, routes and weekly trends. Print it, save a PDF or export CSV.</p></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="gets-title">
+    <h2 id="gets-title">What's in the report</h2>
+    <div class="features">
+      <div class="feature"><h3>Headline numbers first</h3><p>Net revenue, confirmed tickets, cancellation rate and loyalty share at the top.</p></div>
+      <div class="feature"><h3>A skipped-rows report</h3><p>Each unreadable row with its Excel row number and the reason.</p></div>
+      <div class="feature"><h3>Charts that compare</h3><p>Routes busiest first, tickets by class, revenue week by week.</p></div>
+      <div class="feature"><h3>A table you can search</h3><p>Filter by status, search any field, export what you see.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="columns" aria-labelledby="columns-title">
+    <div class="columns">
+      <div class="columns-copy">
+        <h2 id="columns-title">What your file needs</h2>
+        <p>One sheet with a header row. Headers are matched without caring about case, spaces or order, so “Ticket ID” and “ticketid” both work.</p>
+        <div><a class="btn btn-primary" href="/template.xlsx">Download the template</a></div>
+      </div>
+      <div class="card table-box">
+        <table>
+          <thead><tr><th scope="col">Column</th><th scope="col">Needed</th><th scope="col">Example</th></tr></thead>
+          <tbody>
+            {% for name, required, example in columns %}
+            <tr><td>{{ name }}</td><td><span class="tag {{ 'tag-req' if required else 'tag-opt' }}">{{ "Required" if required else "Optional" }}</span></td><td>{{ example }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Railstat · built by Royal as a data automation project</span>
+    <a href="https://github.com/royalpriest/Data-Analysis-Automated-Reporting-Tool">Source on GitHub</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var MAX_BYTES = {{ max_mb }} * 1024 * 1024;
+  var form = document.getElementById("upload-form");
+  var input = document.getElementById("workbook");
+  var drop = document.getElementById("drop");
+  var dropText = document.getElementById("drop-text");
+  var row = document.getElementById("file-row");
+  var nameEl = document.getElementById("file-name");
+  var statusEl = document.getElementById("file-status");
+  var actions = document.getElementById("file-actions");
+  var progress = document.getElementById("progress");
+  var error = document.getElementById("error");
+  var errorTitle = document.getElementById("error-title");
+  var errorText = document.getElementById("error-text");
+  var submit = document.getElementById("submit");
+  var live = document.getElementById("status");
+
+  function size(bytes) {
+    return bytes < 1024 * 1024 ? Math.max(1, Math.round(bytes / 1024)) + " KB" : (bytes / 1024 / 1024).toFixed(1) + " MB";
+  }
+  function showError(title, text) {
+    errorTitle.textContent = title;
+    errorText.textContent = text;
+    error.hidden = false;
+    drop.classList.add("has-error");
+  }
+  function clearError() {
+    error.hidden = true;
+    drop.classList.remove("has-error");
+  }
+  function check(file) {
+    var ext = file.name.split(".").pop().toLowerCase();
+    if (ext !== "xlsx") {
+      return [file.name + " is a ." + ext + " file.", "Save it as an Excel workbook (.xlsx) and choose it again."];
+    }
+    if (file.size > MAX_BYTES) {
+      return [file.name + " is " + size(file.size) + ".", "The limit is {{ max_mb }} MB. Remove unused sheets or rows and try again."];
+    }
+    if (file.size === 0) return [file.name + " is empty.", "Choose the exported workbook instead."];
+    return null;
+  }
+  function chosen() {
+    var file = input.files[0];
+    if (!file) { reset(); return; }
+    var problem = check(file);
+    if (problem) { reset(); showError(problem[0], problem[1]); return; }
+    clearError();
+    nameEl.textContent = file.name;
+    statusEl.textContent = "Ready · " + size(file.size);
+    drop.hidden = true;
+    row.hidden = false;
+    live.textContent = file.name + " selected.";
+  }
+  function reset() {
+    input.value = "";
+    row.hidden = true;
+    drop.hidden = false;
+  }
+
+  input.addEventListener("change", chosen);
+  ["dragenter", "dragover"].forEach(function (type) {
+    drop.addEventListener(type, function (event) {
+      event.preventDefault();
+      drop.classList.add("is-over");
+      var item = event.dataTransfer && event.dataTransfer.items && event.dataTransfer.items[0];
+      dropText.textContent = item ? "Drop to add the file" : "Drop to add the file";
+    });
+  });
+  ["dragleave", "drop"].forEach(function (type) {
+    drop.addEventListener(type, function () {
+      drop.classList.remove("is-over");
+      dropText.textContent = "Drag your .xlsx file here, or";
+    });
+  });
+  drop.addEventListener("drop", function (event) {
+    event.preventDefault();
+    if (event.dataTransfer.files.length) {
+      input.files = event.dataTransfer.files;
+      chosen();
+    }
+  });
+  document.getElementById("replace").addEventListener("click", function () { input.click(); });
+  document.getElementById("remove").addEventListener("click", function () { reset(); live.textContent = "File removed."; input.focus(); });
+
+  form.addEventListener("submit", function (event) {
+    if (!input.files.length) {
+      event.preventDefault();
+      showError("Choose a file first.", "Pick or drop your bookings .xlsx file.");
+      input.focus();
+      return;
+    }
+    submit.disabled = true;
+    submit.innerHTML = '<svg class="spinner" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="3"></circle><path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>Building report…';
+    statusEl.textContent = "Uploading and checking rows…";
+    statusEl.style.color = "var(--ink-2)";
+    actions.hidden = true;
+    progress.hidden = false;
+    live.textContent = "Building the report. This usually takes a few seconds.";
+  });
+  // The browser's back button can restore this page with the button still locked.
+  window.addEventListener("pageshow", function () {
+    submit.disabled = false;
+    submit.textContent = "Build report";
+    progress.hidden = true;
+    actions.hidden = false;
+    if (input.files.length) chosen();
+  });
+})();
+</script>
+</body>
+</html>
