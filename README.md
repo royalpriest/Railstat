@@ -1,4 +1,6 @@
-# Data Analysis & Automated Reporting Tool
+<img src="assets/railstat-mark.svg" width="56" height="56" alt="Railstat logo">
+
+# Railstat: Data Analysis & Automated Reporting Tool
 
 ### Project Overview
 This project is a Python-based automation tool designed to ingest, normalize, and analyze complex datasets from Excel. While currently configured for financial/booking data, the core engine demonstrates the logic required for Security Log Parsing and Incident Reporting.

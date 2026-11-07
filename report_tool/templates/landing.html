@@ -20,8 +20,6 @@ h1, h2 { text-wrap: balance; }
 /* header */
 .site-header { background: var(--surface); border-bottom: 1px solid var(--line); }
 .site-header .wrap { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding-top: 12px; padding-bottom: 12px; }
-.logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--ink); text-decoration: none; }
-.logo-mark { width: 28px; height: 28px; border-radius: 7px; background: var(--ink); display: inline-flex; align-items: center; justify-content: center; }
 nav { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; font-size: 14px; }
 nav a { color: var(--ink); text-decoration: none; }
 nav a:hover { text-decoration: underline; }
@@ -124,9 +122,8 @@ td:last-child { color: var(--ink-2); }
 <body>
 <header class="site-header">
   <div class="wrap">
-    <a class="logo" href="/">
-      <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 26 26" aria-hidden="true"><polyline points="4,19 10,12 14,15 22,6" fill="none" stroke="#6da7ec" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></span>
-      Railstat
+    <a class="brand" href="/" aria-label="Railstat home">
+      {% include "_logo.html" %}
     </a>
     <nav aria-label="Main">
       <a class="nav-section" href="#how">How it works</a>
@@ -260,7 +257,7 @@ td:last-child { color: var(--ink-2); }
 
 <footer class="site-footer">
   <div class="wrap">
-    <span>Railstat · built by Royal as a data automation project</span>
+    <span>Railstat · bookings spreadsheets in, dashboards out</span>
     <a href="https://github.com/royalpriest/Data-Analysis-Automated-Reporting-Tool">Source on GitHub</a>
   </div>
 </footer>
