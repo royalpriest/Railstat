@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "report-tool"
-version = "1.1.0"
+version = "1.2.0"
 description = "Turn a train bookings Excel workbook into a validated HTML or text report."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -20,7 +20,7 @@ report-tool = "report_tool.cli:main"
 packages = ["report_tool"]
 
 [tool.setuptools.package-data]
-report_tool = ["templates/*.j2"]
+report_tool = ["templates/*.j2", "templates/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
