@@ -175,6 +175,16 @@ def build_report(data: bytes, source: str, show_names: bool) -> Response | tuple
     return report_response(result, source, data, show_names)
 
 
+@app.get("/favicon.svg")
+def favicon():
+    """Serve a browser-readable icon at a stable, directly inspectable URL."""
+    return send_file(
+        Path(__file__).parent / "assets" / "favicon.svg",
+        mimetype="image/svg+xml",
+        max_age=3600,
+    )
+
+
 @app.get("/")
 def index():
     return landing_page()

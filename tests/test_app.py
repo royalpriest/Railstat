@@ -96,3 +96,19 @@ def test_too_large(client, monkeypatch):
     response = upload(client, b"x" * 100)
     assert response.status_code == 413
     assert b"larger than" in response.data
+
+
+def test_favicon_is_valid_svg():
+    import xml.etree.ElementTree as ET
+
+    response = app.test_client().get("/favicon.svg?v=2")
+    assert response.status_code == 200
+    assert response.mimetype == "image/svg+xml"
+    root = ET.fromstring(response.data)
+    assert root.tag == "{http://www.w3.org/2000/svg}svg"
+    assert root.attrib["viewBox"] == "0 0 48 48"
+
+
+def test_landing_links_to_served_favicon():
+    response = app.test_client().get("/")
+    assert b'href="/favicon.svg?v=2"' in response.data
