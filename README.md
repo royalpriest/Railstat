@@ -54,7 +54,7 @@ python samples/make_sample.py   # regenerate the sample workbook
 `Project.ipynb` is the original notebook version, kept for reference. The maintained code is in `report_tool/`.
 
 ### Web app (Vercel)
-`app.py` is a small Flask app: upload an `.xlsx` (up to 4 MB) and it returns the HTML dashboard, or open `/sample` to see the sample report. Uploads are processed in a temporary file that is deleted straight away; nothing is stored. Passenger names stay masked unless the "Show full passenger names" box is ticked.
+`app.py` is a small Flask app. The landing page explains the tool, shows a preview built from the sample file, and takes an `.xlsx` upload (up to 4 MB, drag and drop or browse) that returns the HTML dashboard. `/sample` shows the sample report and `/template.xlsx` downloads a blank workbook with the right headers. Upload problems (wrong file type, missing columns, no usable rows) are explained in plain words with how to fix them. The page uses the Space Mono font and has a light/dark switch that remembers your choice. Uploads are processed in a temporary file that is deleted straight away; nothing is stored. Passenger names stay masked unless the "Show full passenger names" box is ticked.
 
 ```bash
 flask --app app run          # http://127.0.0.1:5000
