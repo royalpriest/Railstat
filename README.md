@@ -18,7 +18,16 @@ In a Security Operations Center (SOC), analysts must often parse through massive
 - **Automated ingestion:** reads the active sheet of an `.xlsx` workbook with openpyxl, matching columns by header name, so the column order doesn't matter.
 - **Row-level validation:** bad rows are skipped and listed with their Excel row number, ticket ID and reason.
 - **Exact money math:** prices, discounts and revenue use `Decimal`, rounded to cents.
-- **HTML dashboard report (default):** one self-contained file such as `reports/booking_summary_20261031_140211.html` that opens in any browser, offline. It shows the headline numbers first (net revenue, confirmed tickets, cancellation rate, loyalty share), a warning when rows were skipped, bookings by route and by class, net revenue by week, and a table of every booking you can filter by status and search. It has Export CSV and Print / Save PDF buttons, follows the system's light or dark mode, and works on a phone.
+- **HTML dashboard report (default):** one self-contained file such as `reports/booking_summary_20261031_140211.html` that opens in any browser. It contains:
+  - filters for period (all weeks, or the last few weeks), route and class;
+  - headline numbers (net revenue, confirmed tickets, cancellation rate, loyalty share), each showing its change against the previous period;
+  - a line saying whether every row was used;
+  - weekly net revenue, with the compared weeks shaded and the high and low weeks labelled;
+  - cancellation rate by route, measured against the average;
+  - bookings by route and by class;
+  - a bookings table you can sort, search and page through.
+
+  It has Export CSV and Print / Save PDF buttons and a light/dark switch, uses the Space Mono font (falling back to the system monospace font offline), and works on a phone.
 - **Text report:** `--format txt` (or `both`) writes the same figures as plain text.
 - **Skipped rows:** listed in the report and saved next to it as `..._skipped_rows.csv`.
 - **Privacy by default:** passenger names are masked (`Maria Gonzalez` becomes `M. G•••••••`) and full names are never written to the file unless you pass `--show-names`. Spreadsheet text is HTML-escaped, and CSV cells that could run as spreadsheet formulas are neutralised.

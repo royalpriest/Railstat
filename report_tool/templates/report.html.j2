@@ -5,162 +5,249 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="report-tool {{ version }}">
 <title>Train bookings report · {{ source }}</title>
+{% include "_theme.html" %}
 <style>
-:root {
-  color-scheme: light;
-  --page: #f4f4f1; --surface: #ffffff; --ink: #0b0b0b; --ink-2: #52514e; --muted: #6b6a65;
-  --line: #e1e0d9; --axis: #c3c2b7; --head: #f4f4f1;
-  --series-1: #2a78d6; --series-2: #eb6834;
-  --warn-bg: #fff7e3; --warn-line: #f0d48a; --warn-ink: #4a3000;
-  --chip: #e1e0d9; --focus: #2a78d6;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #a3a29b;
-    --line: #2c2c2a; --axis: #4a4a46; --head: #222220;
-    --series-1: #3987e5; --series-2: #d95926;
-    --warn-bg: #2b2210; --warn-line: #6b5420; --warn-ink: #f5dfa8;
-    --chip: #383835; --focus: #6da7ec;
-  }
-}
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--page); color: var(--ink);
-  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-.wrap { max-width: 1200px; margin: 0 auto; padding: 32px 20px 48px; display: flex; flex-direction: column; gap: 20px; }
-h1 { margin: 0; font-size: 28px; line-height: 1.2; text-wrap: balance; }
-h2 { margin: 0; font-size: 17px; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.55 var(--font); }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 20px 48px; display: flex; flex-direction: column; gap: 18px; }
+h1 { margin: 0; font-size: 26px; line-height: 1.2; letter-spacing: -0.01em; }
+h2 { margin: 0; font-size: 15px; }
 p { margin: 0; }
-.meta, .note { color: var(--ink-2); font-size: 14px; }
-.note { font-size: 13px; }
-.chip { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--chip); }
-header { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between; }
-.title { display: flex; flex-direction: column; gap: 6px; }
-.actions { display: flex; gap: 8px; flex-wrap: wrap; }
-button, .button { min-height: 44px; padding: 0 16px; font: inherit; font-size: 14px; font-weight: 500;
-  border-radius: 8px; border: 1px solid var(--axis); background: var(--surface); color: var(--ink); cursor: pointer;
-  display: inline-flex; align-items: center; text-decoration: none; }
-button.primary { background: var(--ink); color: var(--page); border-color: var(--ink); }
-button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px;
-  display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.warning { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; background: var(--warn-bg);
-  border: 1px solid var(--warn-line); border-radius: 12px; padding: 14px 18px; color: var(--warn-ink); }
-.warning div { flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.warning .button { border-color: var(--warn-line); color: var(--warn-ink); font-weight: 600; }
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+a { color: var(--accent-ink); }
+.note, .meta { color: var(--ink-2); font-size: 13px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+button, .button, select { min-height: 40px; padding: 0 14px; font: inherit; font-size: 13px; border-radius: 8px;
+  border: 1px solid var(--axis); background: var(--surface); color: var(--ink); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+select { padding-right: 10px; max-width: 100%; }
+button.primary { background: var(--ink); color: var(--page); border-color: var(--ink); font-weight: 700; }
+button:disabled { opacity: 0.45; cursor: default; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* D1 app header */
+.topbar { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; color: var(--ink); text-decoration: none; }
+.logo-mark { width: 28px; height: 28px; border-radius: 7px; background: #0b0b0b; display: inline-grid; place-items: center; }
+.file-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px;
+  background: var(--chip); font-size: 12px; color: var(--ink-2); min-width: 0; max-width: 100%; }
+.file-chip strong { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-chip span { white-space: nowrap; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.title { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; padding-top: 10px; }
+
+/* D2 filters */
+.filters { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center;
+  padding: 10px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.filters label { font-size: 12px; color: var(--ink-2); display: inline-flex; align-items: center; gap: 8px; }
+.segmented { display: inline-flex; border: 1px solid var(--axis); border-radius: 8px; overflow: hidden; }
+.segmented button { border: 0; border-radius: 0; min-height: 38px; }
+.segmented button + button { border-left: 1px solid var(--axis); }
+.segmented button[aria-pressed="true"] { background: var(--ink); color: var(--page); font-weight: 700; }
+.filters .spacer { flex: 1; }
+#reset { border-color: transparent; color: var(--accent-ink); text-decoration: underline; }
+
+/* D5 data quality */
+.quality { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; padding: 10px 14px;
+  border-radius: 10px; font-size: 13px; }
+.quality.ok { background: var(--surface); border: 1px solid var(--line); }
+.quality.ok svg { color: var(--good); }
+.quality.warn { background: var(--warn-bg); border: 1px solid var(--warn-line); color: var(--warn-ink); }
+.quality div { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; }
+.quality .button { border-color: var(--warn-line); color: var(--warn-ink); background: transparent; font-weight: 700; }
+
+/* D3 headline numbers */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px;
+  display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .kpi { gap: 4px; }
-.kpi .label { color: var(--ink-2); font-size: 14px; font-weight: 500; }
-.kpi .value { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
-.kpi .sub { color: var(--ink-2); font-size: 13px; }
-.row { display: flex; flex-wrap: wrap; gap: 16px; }
-.row > .wide { flex: 3 1 520px; }
-.row > .narrow { flex: 2 1 320px; }
-.chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; }
-.legend { display: flex; gap: 16px; font-size: 13px; color: var(--ink-2); }
+.kpi .label { color: var(--ink-2); font-size: 13px; }
+.kpi .value { font-size: 30px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.kpi .sub { color: var(--ink-2); font-size: 12px; }
+.delta { font-size: 12px; display: flex; flex-wrap: wrap; gap: 2px 6px; align-items: baseline; min-height: 19px; }
+.delta b { font-weight: 700; }
+.delta .good { color: var(--good); } .delta .bad { color: var(--bad); } .delta .flat { color: var(--ink-2); }
+.delta .vs { color: var(--muted); }
+.kpi-spark svg { display: block; width: 100%; height: 36px; margin-top: 4px; }
+
+/* chart cards */
+.row { display: flex; flex-wrap: wrap; gap: 14px; }
+.row > .wide { flex: 3 1 560px; }
+.row > .narrow { flex: 2 1 340px; }
+.chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; align-items: baseline; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); }
 .legend span { display: inline-flex; gap: 6px; align-items: center; }
 .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-.s1 { background: var(--series-1); } .s2 { background: var(--series-2); }
-.bars { display: grid; grid-template-columns: minmax(90px, 180px) minmax(0, 1fr) auto; gap: 12px; align-items: center; font-size: 14px; }
-.track { display: flex; gap: 2px; height: 20px; }
-.track div:last-child { border-radius: 0 4px 4px 0; }
-.track div { min-width: 0; }
-.track .zero { display: none; }
-.val { font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
-.axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted);
-  font-variant-numeric: tabular-nums; border-top: 1px solid var(--axis); padding-top: 4px; }
-svg text { fill: var(--muted); font-size: 12px; }
+.swatch.dash { height: 0; width: 14px; border-top: 2px dashed var(--ink-2); border-radius: 0; }
+.s1 { background: var(--series-1); } .s2 { background: var(--series-2); } .s2-soft { background: var(--series-2-soft); }
+.swatch.shade { background: var(--chip); border: 1px solid var(--axis); }
+.bars { display: grid; grid-template-columns: minmax(80px, 170px) minmax(0, 1fr) auto; gap: 10px 12px; align-items: center; font-size: 13px; }
+.bars .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bars .dim { opacity: 0.35; }
+.bars .picked { font-weight: 700; }
+.track { position: relative; display: flex; gap: 2px; height: 18px; }
+.track > div { min-width: 0; }
+.track > div:last-of-type { border-radius: 0 4px 4px 0; }
+.track .ref { position: absolute; top: -5px; bottom: -5px; width: 0; border-left: 2px dashed var(--ink-2); }
+.val { font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; font-size: 12px; }
+.axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted);
+  border-top: 1px solid var(--axis); padding-top: 4px; }
+.empty { color: var(--ink-2); font-size: 13px; padding: 18px 0; }
+
+/* D7 trend */
+.trend { position: relative; }
+.trend svg { display: block; overflow: visible; }
+svg text { fill: var(--muted); font: 11px var(--font); }
 svg .grid { stroke: var(--line); } svg .base { stroke: var(--axis); }
-svg .line { stroke: var(--series-1); fill: none; stroke-width: 2; stroke-linejoin: round; }
+svg .shade { fill: var(--chip); }
+svg .shade-label { fill: var(--ink-2); }
+svg .line { stroke: var(--series-1); fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 svg .area { fill: var(--series-1); fill-opacity: 0.08; }
 svg .dot { fill: var(--series-1); stroke: var(--surface); stroke-width: 2; }
-svg .peak-label { fill: var(--ink); font-weight: 600; }
-.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-.segmented { display: inline-flex; border: 1px solid var(--axis); border-radius: 8px; overflow: hidden; }
-.segmented button { border: 0; border-radius: 0; min-height: 40px; }
-.segmented button + button { border-left: 1px solid var(--axis); }
-.segmented button[aria-pressed="true"] { background: var(--ink); color: var(--page); }
-input[type="search"] { flex: 1 1 220px; min-width: 0; min-height: 40px; padding: 0 12px; font: inherit; font-size: 14px;
+svg .callout { fill: var(--ink); font-weight: 700; }
+svg .cross { stroke: var(--ink-2); stroke-width: 1; }
+.tooltip { position: absolute; pointer-events: none; background: var(--ink); color: var(--page); font-size: 12px;
+  padding: 6px 10px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -125%); }
+
+/* D6 table */
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+input[type="search"] { flex: 1 1 220px; min-width: 0; min-height: 40px; padding: 0 12px; font: inherit; font-size: 13px;
   border: 1px solid var(--axis); border-radius: 8px; background: var(--surface); color: var(--ink); }
-.table-box { overflow: auto; max-height: 560px; border: 1px solid var(--line); border-radius: 8px; }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th { position: sticky; top: 0; background: var(--head); text-align: left; font-weight: 600; color: var(--ink-2); }
-th, td { padding: 10px 12px; white-space: nowrap; }
+.table-box { overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: var(--head); text-align: left; font-weight: 700; color: var(--ink-2); padding: 0; white-space: nowrap; }
+th button { width: 100%; min-height: 40px; border: 0; border-radius: 0; background: transparent; color: inherit;
+  font-weight: 700; padding: 0 12px; justify-content: flex-start; }
+th.num button { justify-content: flex-end; }
+th button .arrow { color: var(--muted); font-size: 10px; min-width: 10px; }
+th[aria-sort] button { color: var(--ink); }
+td { padding: 9px 12px; white-space: nowrap; }
+.skipped th { padding: 10px 12px; }
 tbody { font-variant-numeric: tabular-nums; }
 tbody tr { border-top: 1px solid var(--line); }
 .num { text-align: right; }
-.mono { font-family: ui-monospace, "SF Mono", Consolas, monospace; }
 .status { display: inline-flex; align-items: center; gap: 6px; }
 .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--series-1); }
 .status.cancelled::before { background: var(--series-2); }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; color: var(--ink-2); font-size: 13px; }
-@media (max-width: 600px) {
+.pager { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; justify-content: space-between; font-size: 13px; color: var(--ink-2); }
+.pager .pages { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pager label { display: inline-flex; gap: 8px; align-items: center; }
+footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; color: var(--ink-2); font-size: 12px; }
+
+@media (max-width: 640px) {
+  .wrap { padding: 0 14px 40px; }
+  .filters { position: static; }
+  .filters label { flex: 1 1 140px; }
+  .filters select { flex: 1; }
   .bars { grid-template-columns: minmax(0, 1fr) auto; row-gap: 4px; }
   .bars .name { grid-column: 1 / -1; margin-top: 6px; }
   .bars .spacer { display: none; }
-  svg text { font-size: 26px; }
+  .label-long { display: none; }
 }
 @media print {
   body { background: #fff; }
-  .actions, .toolbar, .warning .button { display: none; }
-  .table-box { max-height: none; overflow: visible; }
-  .card, .warning { break-inside: avoid; }
+  .actions, .filters .control, #reset, .toolbar, .pager .pages, .quality .button { display: none !important; }
+  .filters { position: static; }
+  .card, .quality { break-inside: avoid; }
 }
 </style>
 </head>
 <body>
 <main class="wrap">
 
-<header>
-  <div class="title">
-    <h1>Train bookings report</h1>
-    <p class="meta">{{ source }} · {{ rows_read | number }} rows read · Generated {{ generated_at.strftime("%d %b %Y, %H:%M") }}</p>
-  </div>
+<header class="topbar">
+  {% if upload_url %}<a class="brand" href="{{ upload_url }}">{% else %}<span class="brand">{% endif %}
+    <span class="logo-mark"><svg width="18" height="18" viewBox="0 0 26 26" aria-hidden="true"><polyline points="4,19 10,12 14,15 22,6" fill="none" stroke="#6da7ec" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></span>
+    Railstat
+  {% if upload_url %}</a>{% else %}</span>{% endif %}
+  <span class="file-chip" title="{{ source }}">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>
+    <strong>{{ source }}</strong><span>· {{ rows_read | number }} rows · {{ generated_at.strftime("%d %b %Y, %H:%M") }}</span>
+  </span>
   <div class="actions">
+    {% if upload_url %}<a class="button" href="{{ upload_url }}">Upload<span class="label-long"> another file</span></a>{% endif %}
     <button type="button" id="export-csv">Export CSV</button>
-    <button type="button" class="primary" id="print">Print / Save PDF</button>
+    <button type="button" class="primary" id="print">Print<span class="label-long"> / Save PDF</span></button>
+    {% include "_theme_button.html" %}
   </div>
 </header>
 
+<div class="title">
+  <h1>Train bookings report</h1>
+  <p class="meta" id="view-note">All bookings</p>
+</div>
+
+<section class="filters" aria-label="Filters">
+  <div class="segmented control" role="group" aria-label="Period" id="period" hidden></div>
+  <label class="control">Route <select id="route-filter"><option value="">All routes</option></select></label>
+  <label class="control">Class <select id="class-filter"><option value="">All classes</option></select></label>
+  <span class="spacer"></span>
+  <button type="button" id="reset" hidden>Clear filters</button>
+</section>
+
 {% if skipped %}
-<section class="warning" aria-label="Data quality">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+<section class="quality warn" aria-label="Data quality">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
   <div>
     <strong>Warning: {{ skipped | length }} row{{ "s were" if skipped | length != 1 else " was" }} skipped and {{ "are" if skipped | length != 1 else "is" }} not in these totals</strong>
     <span>{% for reason, count in skipped_reasons %}{{ count }} × {{ reason }}{{ " · " if not loop.last }}{% endfor %}</span>
   </div>
   <a class="button" href="#skipped">Review skipped rows</a>
 </section>
+{% else %}
+<section class="quality ok" aria-label="Data quality">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m8 12 3 3 5-6"></path></svg>
+  <div><strong>All {{ rows_read | number }} rows used.</strong><span class="note">Every row passed the checks, so nothing is missing from these totals.</span></div>
+</section>
 {% endif %}
 
-<section class="kpis" aria-label="Summary">
+<section class="kpis" aria-label="Headline numbers">
   <div class="card kpi">
     <span class="label">Net revenue</span>
-    <span class="value">{{ s.net_revenue | money }}</span>
-    <span class="sub">after {{ s.total_discount | money }} in discounts</span>
+    <span class="value" id="kpi-revenue">{{ s.net_revenue | money }}</span>
+    <span class="sub" id="kpi-revenue-sub">after {{ s.total_discount | money }} in discounts</span>
+    <span class="delta" id="kpi-revenue-delta"></span>
+    <div class="kpi-spark" id="kpi-spark" aria-hidden="true"></div>
   </div>
   <div class="card kpi">
     <span class="label">Confirmed tickets</span>
-    <span class="value">{{ s.confirmed_tickets | number }}</span>
-    <span class="sub">of {{ s.valid_bookings | number }} valid bookings · avg {{ s.average_net_ticket | money }}</span>
+    <span class="value" id="kpi-confirmed">{{ s.confirmed_tickets | number }}</span>
+    <span class="sub" id="kpi-confirmed-sub">of {{ s.valid_bookings | number }} valid bookings · avg {{ s.average_net_ticket | money }}</span>
+    <span class="delta" id="kpi-confirmed-delta"></span>
   </div>
   <div class="card kpi">
     <span class="label">Cancellation rate</span>
-    <span class="value">{{ "%.1f" | format(s.cancellation_rate * 100) }}%</span>
-    <span class="sub">{{ s.cancellations | number }} booking{{ "s" if s.cancellations != 1 }} cancelled</span>
+    <span class="value" id="kpi-cancel">{{ "%.1f" | format(s.cancellation_rate * 100) }}%</span>
+    <span class="sub" id="kpi-cancel-sub">{{ s.cancellations | number }} booking{{ "s" if s.cancellations != 1 }} cancelled</span>
+    <span class="delta" id="kpi-cancel-delta"></span>
   </div>
   <div class="card kpi">
     <span class="label">Loyalty members</span>
-    {% if loyalty_known %}
-    <span class="value">{{ "%.0f" | format(loyalty_pct) }}%</span>
-    <span class="sub">{{ s.loyalty_members | number }} of {{ loyalty_known | number }} confirmed tickets{% if s.loyalty_unknown %} · {{ s.loyalty_unknown }} unknown{% endif %}</span>
-    {% else %}
-    <span class="value">n/a</span>
-    <span class="sub">no loyalty data in the file</span>
-    {% endif %}
+    <span class="value" id="kpi-loyalty">{% if loyalty_known %}{{ "%.0f" | format(loyalty_pct) }}%{% else %}n/a{% endif %}</span>
+    <span class="sub" id="kpi-loyalty-sub">{% if loyalty_known %}{{ s.loyalty_members | number }} of {{ loyalty_known | number }} confirmed tickets{% if s.loyalty_unknown %} · {{ s.loyalty_unknown }} unknown{% endif %}{% else %}no loyalty data in the file{% endif %}</span>
+    <span class="delta" id="kpi-loyalty-delta"></span>
   </div>
 </section>
+
+<noscript><p class="note">Turn on JavaScript to see the charts, filters and bookings table.</p></noscript>
+
+<div class="row">
+  <section class="card wide" aria-labelledby="trend-title">
+    <div class="chart-head">
+      <h2 id="trend-title">Net revenue by week</h2>
+      <div class="legend" id="trend-legend"></div>
+    </div>
+    <div class="trend" id="trend"></div>
+  </section>
+  <section class="card narrow" aria-labelledby="cancel-title">
+    <h2 id="cancel-title">Cancellation rate by route</h2>
+    <div class="legend">
+      <span><i class="swatch s2"></i>Above average</span><span><i class="swatch s2-soft"></i>At or below</span><span><i class="swatch dash"></i>Average</span>
+    </div>
+    <div id="cancel-chart"></div>
+  </section>
+</div>
 
 <div class="row">
   <section class="card wide" aria-labelledby="routes-title">
@@ -169,102 +256,61 @@ footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-betwee
       <div class="legend"><span><i class="swatch s1"></i>Confirmed</span><span><i class="swatch s2"></i>Cancelled</span></div>
     </div>
     <p class="note">Busiest first. Labels show confirmed · cancelled.</p>
-    <div class="bars">
-      {% for r in route_bars %}
-      <span class="name">{{ r.name }}</span>
-      <div class="track">
-        <div class="s1{{ ' zero' if not r.confirmed }}" style="width: {{ r.confirmed_pct }}%" title="{{ r.name }}: {{ r.confirmed }} confirmed"></div>
-        <div class="s2{{ ' zero' if not r.cancelled }}" style="width: {{ r.cancelled_pct }}%" title="{{ r.name }}: {{ r.cancelled }} cancelled"></div>
-      </div>
-      <span class="val">{{ r.confirmed }} · {{ r.cancelled }}</span>
-      {% endfor %}
-      <span class="spacer"></span>
-      <div class="axis" aria-hidden="true">{% for t in route_ticks %}<span>{{ t | number }}</span>{% endfor %}</div>
-      <span class="spacer"></span>
-    </div>
+    <div id="route-chart"></div>
   </section>
-
   <section class="card narrow" aria-labelledby="class-title">
     <h2 id="class-title">Confirmed tickets by class</h2>
-    <p class="note">{{ s.confirmed_tickets | number }} tickets</p>
-    <div class="bars">
-      {% for c in class_bars %}
-      <span class="name">{{ c.name }}</span>
-      <div class="track"><div class="s1" style="width: {{ c.pct }}%" title="{{ c.name }}: {{ c.count }}"></div></div>
-      <span class="val">{{ c.count }}</span>
-      {% endfor %}
-      <span class="spacer"></span>
-      <div class="axis" aria-hidden="true">{% for t in class_ticks %}<span>{{ t | number }}</span>{% endfor %}</div>
-      <span class="spacer"></span>
-    </div>
+    <div id="class-chart"></div>
   </section>
 </div>
 
-<section class="card" aria-labelledby="trend-title">
-  <div class="chart-head">
-    <h2 id="trend-title">Net revenue by week</h2>
-    {% if line %}<span class="note">Highest: week of {{ line.peak.week_start | day }}, {{ line.peak.revenue | money }}</span>{% endif %}
-  </div>
-  {% if line %}
-  <svg viewBox="0 0 {{ line.width }} {{ line.height }}" width="100%" role="img"
-       aria-label="Weekly net revenue from {{ line.points[0].week_start.strftime('%d %b %Y') }} to {{ line.points[-1].week_start.strftime('%d %b %Y') }}">
-    {% for value, y in line.y_ticks %}
-    <line class="{{ 'base' if loop.first else 'grid' }}" x1="{{ line.left }}" y1="{{ y }}" x2="{{ line.width - 24 }}" y2="{{ y }}"></line>
-    <text x="{{ line.left - 8 }}" y="{{ y + 4 }}" text-anchor="end">{{ value | short_money }}</text>
-    {% endfor %}
-    <path class="area" d="{{ line.area_path }}"></path>
-    <polyline class="line" points="{{ line.polyline }}"></polyline>
-    {% for p in line.points %}
-    <circle class="dot" cx="{{ p.x }}" cy="{{ p.y }}" r="{{ 6 if p is sameas line.peak else 4 }}"><title>Week of {{ p.week_start | day }}: {{ p.revenue | money }}</title></circle>
-    {% if p.labelled %}<text x="{{ p.x }}" y="{{ line.bottom + 22 }}" text-anchor="middle">{{ p.week_start | day }}</text>{% endif %}
-    {% endfor %}
-  </svg>
-  {% else %}
-  <p class="note">Not enough dated bookings to show a trend (needs at least two weeks).</p>
-  {% endif %}
-</section>
-
 <section class="card" aria-labelledby="table-title">
-  <h2 id="table-title">All bookings</h2>
+  <h2 id="table-title">Bookings</h2>
   <div class="toolbar">
-    <div class="segmented" role="group" aria-label="Filter by status">
-      <button type="button" data-filter="all" aria-pressed="true">All {{ s.valid_bookings }}</button>
-      <button type="button" data-filter="confirmed" aria-pressed="false">Confirmed {{ s.confirmed_tickets }}</button>
-      <button type="button" data-filter="cancelled" aria-pressed="false">Cancelled {{ s.cancellations }}</button>
+    <div class="segmented" role="group" aria-label="Filter by status" id="status-filter">
+      <button type="button" data-status="all" aria-pressed="true">All</button>
+      <button type="button" data-status="confirmed" aria-pressed="false">Confirmed</button>
+      <button type="button" data-status="cancelled" aria-pressed="false">Cancelled</button>
     </div>
     <label for="search" class="sr-only">Search bookings</label>
-    <input id="search" type="search" placeholder="Search ticket, route, class or date">
+    <input id="search" type="search" placeholder="Search ticket, passenger, route, class or date">
   </div>
   <div class="table-box">
     <table id="bookings">
       <thead><tr>
-        <th scope="col">Ticket</th><th scope="col">Passenger</th><th scope="col">Route</th><th scope="col">Class</th>
-        <th scope="col" class="num">Net price</th><th scope="col">Date</th><th scope="col">Status</th>
+        <th scope="col" data-key="t"><button type="button">Ticket <span class="arrow"></span></button></th>
+        <th scope="col" data-key="p"><button type="button">Passenger <span class="arrow"></span></button></th>
+        <th scope="col" data-key="r"><button type="button">Route <span class="arrow"></span></button></th>
+        <th scope="col" data-key="c"><button type="button">Class <span class="arrow"></span></button></th>
+        <th scope="col" data-key="d"><button type="button">Date <span class="arrow"></span></button></th>
+        <th scope="col" data-key="disc" class="num"><button type="button">Discount <span class="arrow"></span></button></th>
+        <th scope="col" data-key="net" class="num"><button type="button">Net price <span class="arrow"></span></button></th>
+        <th scope="col" data-key="s"><button type="button">Status <span class="arrow"></span></button></th>
       </tr></thead>
-      <tbody>
-        {% for r in rows %}
-        <tr data-status="{{ r.status }}">
-          <td class="mono">{{ r.ticket_id }}</td><td>{{ r.passenger }}</td><td>{{ r.route }}</td><td>{{ r.ticket_class }}</td>
-          <td class="num">{{ r.net_price | money if r.net_price is not none else "—" }}</td>
-          <td>{{ r.date.isoformat() if r.date else "—" }}</td>
-          <td><span class="status {{ r.status }}">{{ r.status | capitalize }}</span></td>
-        </tr>
-        {% endfor %}
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
-  <p class="note" id="table-count">Showing {{ rows | length }} of {{ rows | length }} bookings.{% if not show_names %} Passenger names are masked; run with --show-names to include them.{% endif %}</p>
+  <div class="pager">
+    <span id="table-count" aria-live="polite"></span>
+    <div class="pages">
+      <label>Rows per page <select id="page-size"><option>25</option><option selected>50</option><option>100</option><option value="0">All</option></select></label>
+      <button type="button" id="prev">‹ Prev</button>
+      <span id="page-of"></span>
+      <button type="button" id="next">Next ›</button>
+    </div>
+  </div>
+  {% if not show_names %}<p class="note">Passenger names are masked{% if upload_url %}; tick “Show full passenger names” when uploading to include them{% else %}; run with --show-names to include them{% endif %}.</p>{% endif %}
 </section>
 
 {% if skipped %}
 <section class="card" id="skipped" aria-labelledby="skipped-title">
   <h2 id="skipped-title">Skipped rows ({{ skipped | length }})</h2>
   <div class="table-box">
-    <table>
+    <table class="skipped">
       <thead><tr><th scope="col">Excel row</th><th scope="col">Ticket</th><th scope="col">Reason</th><th scope="col">Value found</th></tr></thead>
       <tbody>
         {% for item in skipped %}
-        <tr><td>{{ item.row }}</td><td class="mono">{{ item.ticket_id or "—" }}</td><td>{{ item.reason }}</td><td class="mono">{{ item.value }}</td></tr>
+        <tr><td>{{ item.row }}</td><td>{{ item.ticket_id or "—" }}</td><td>{{ item.reason }}</td><td>{{ item.value }}</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -274,50 +320,456 @@ footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-betwee
 {% endif %}
 
 <footer>
-  <span>One file, opens in any browser and works offline.</span>
+  <span>One file: opens in any browser, works offline, prints to PDF.</span>
   <span>report-tool {{ version }} · source sha256 {{ source_hash }}</span>
 </footer>
 </main>
 
+<script type="application/json" id="report-data">{{ data | tojson }}</script>
 <script>
 (function () {
-  var table = document.getElementById("bookings");
-  var rows = Array.prototype.slice.call(table.tBodies[0].rows);
-  var buttons = document.querySelectorAll("[data-filter]");
-  var search = document.getElementById("search");
-  var count = document.getElementById("table-count");
-  var note = count.textContent.replace(/^Showing \d+ of \d+ bookings\./, "");
-  var filter = "all";
+  "use strict";
+  var DATA = JSON.parse(document.getElementById("report-data").textContent);
+  var ALL = DATA.bookings;
+  var WEEKS = DATA.weeks;
+  var N = WEEKS.length;
+  var SVG = "http://www.w3.org/2000/svg";
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var state = { period: "all", route: "", cls: "", status: "all", q: "", sort: "d", dir: 1, page: 1, size: 50 };
 
-  function apply() {
-    var q = search.value.trim().toLowerCase();
-    var shown = 0;
-    rows.forEach(function (row) {
-      var visible = (filter === "all" || row.dataset.status === filter) &&
-        (!q || row.textContent.toLowerCase().indexOf(q) !== -1);
-      row.hidden = !visible;
-      if (visible) shown++;
-    });
-    count.textContent = "Showing " + shown + " of " + rows.length + " bookings." + note;
+  // ---------- helpers (spreadsheet text only ever goes in through textContent) ----------
+  function el(tag, attrs, text) {
+    var node = document.createElement(tag);
+    for (var k in attrs || {}) {
+      if (k === "class") node.className = attrs[k]; else if (k === "style") node.style.cssText = attrs[k]; else node.setAttribute(k, attrs[k]);
+    }
+    if (text !== undefined && text !== null) node.textContent = text;
+    return node;
+  }
+  function svg(tag, attrs, text) {
+    var node = document.createElementNS(SVG, tag);
+    for (var k in attrs || {}) node.setAttribute(k, attrs[k]);
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); return node; }
+  function setText(id, text) { document.getElementById(id).textContent = text; }
+  function money(cents) {
+    return "$" + (cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function shortMoney(cents) {
+    var v = cents / 100;
+    if (v >= 1000) return "$" + (v / 1000).toLocaleString("en-US", { maximumFractionDigits: 1 }) + "k";
+    return "$" + Math.round(v).toLocaleString("en-US");
+  }
+  function num(v) { return v.toLocaleString("en-US"); }
+  function pct(v, digits) { return (v * 100).toFixed(digits === undefined ? 1 : digits) + "%"; }
+  function day(iso) {
+    var parts = iso.split("-");
+    return +parts[2] + " " + MONTHS[+parts[1] - 1];
+  }
+  function niceMax(v) {  // round up to 1, 2, 2.5, 5 or 10 times a power of ten
+    if (v <= 0) return 1;
+    var m = Math.pow(10, Math.floor(Math.log10(v)));
+    var steps = [1, 2, 2.5, 5, 10];
+    for (var i = 0; i < steps.length; i++) if (v <= steps[i] * m * (1 + 1e-9)) return steps[i] * m;
+    return 10 * m;
+  }
+  function niceAxis(v, integer) {  // axis max whose four equal steps are round numbers
+    var step = v > 0 ? niceMax(v / 4) : 1;
+    if (integer) step = Math.max(1, Math.ceil(step));
+    return step * 4;
   }
 
-  buttons.forEach(function (button) {
+  // ---------- filtering and figures ----------
+  // Weeks are indexes into WEEKS. "All" compares the last half with the half before it;
+  // "Last k" shows the last k weeks and compares them with the k weeks before.
+  function windows() {
+    if (N < 2) return null;
+    var k = state.period === "all" ? Math.floor(N / 2) : state.period;
+    return { cur: [N - k, N], prev: [N - 2 * k, N - k], k: k };
+  }
+  function matches(b, ignore) {
+    return (ignore === "route" || !state.route || b.r === state.route) &&
+      (ignore === "class" || !state.cls || b.c === state.cls);
+  }
+  function inWeeks(b, range) { return b.w !== null && b.w >= range[0] && b.w < range[1]; }
+  function inView(b, ignore) {
+    return matches(b, ignore) && (state.period === "all" || inWeeks(b, windows().cur));
+  }
+  function figures(list) {
+    var f = { revenue: 0, discount: 0, confirmed: 0, cancelled: 0, loyal: 0, notLoyal: 0, unknown: 0 };
+    list.forEach(function (b) {
+      if (b.s === "confirmed") {
+        f.confirmed++; f.revenue += b.net; f.discount += b.price - b.net;
+        if (b.loy === true) f.loyal++; else if (b.loy === false) f.notLoyal++; else f.unknown++;
+      } else f.cancelled++;
+    });
+    f.total = f.confirmed + f.cancelled;
+    f.cancelRate = f.total ? f.cancelled / f.total : null;
+    f.known = f.loyal + f.notLoyal;
+    f.loyalRate = f.known ? f.loyal / f.known : null;
+    return f;
+  }
+  function weekly(list, range, measure) {
+    var out = [];
+    for (var i = range[0]; i < range[1]; i++) out.push(0);
+    list.forEach(function (b) { if (b.s === "confirmed" && inWeeks(b, range)) out[b.w - range[0]] += measure(b); });
+    return out;
+  }
+  function netOf(b) { return b.net; }
+  function one() { return 1; }
+
+  // ---------- D3 headline numbers ----------
+  function delta(id, cur, prev, kind, upIsGood, caption) {
+    var box = clear(document.getElementById(id));
+    if (cur === null || prev === null || !caption) return;
+    if (kind === "pct" && !prev) return;
+    var change = kind === "pct" ? (cur - prev) / prev : cur - prev;
+    var size = Math.abs(change * 100).toFixed(1) + (kind === "pct" ? "%" : " pts");
+    var flat = size === "0.0%" || size === "0.0 pts";
+    var up = change > 0;
+    var tone = flat ? "flat" : (up === upIsGood ? "good" : "bad");
+    var words = flat ? "■ no change" : (up ? "▲ up " : "▼ down ") + size;
+    box.appendChild(el("b", { class: tone }, words));
+    box.appendChild(el("span", { class: "vs" }, caption));
+  }
+  function renderKpis(view, cur, prev, caption) {
+    var f = figures(view);
+    setText("kpi-revenue", money(f.revenue));
+    setText("kpi-revenue-sub", "after " + money(f.discount) + " in discounts");
+    setText("kpi-confirmed", num(f.confirmed));
+    setText("kpi-confirmed-sub", "of " + num(f.total) + " valid bookings · avg " + money(f.confirmed ? Math.round(f.revenue / f.confirmed) : 0));
+    setText("kpi-cancel", f.cancelRate === null ? "n/a" : pct(f.cancelRate));
+    setText("kpi-cancel-sub", num(f.cancelled) + " booking" + (f.cancelled === 1 ? "" : "s") + " cancelled");
+    setText("kpi-loyalty", f.loyalRate === null ? "n/a" : pct(f.loyalRate, 0));
+    setText("kpi-loyalty-sub", f.known
+      ? num(f.loyal) + " of " + num(f.known) + " confirmed tickets" + (f.unknown ? " · " + f.unknown + " unknown" : "")
+      : "no loyalty data for these bookings");
+    var c = cur ? figures(cur) : null, p = prev ? figures(prev) : null;
+    var ok = !!(c && p && p.total);
+    delta("kpi-revenue-delta", ok ? c.revenue : null, ok ? p.revenue : null, "pct", true, caption);
+    delta("kpi-confirmed-delta", ok ? c.confirmed : null, ok ? p.confirmed : null, "pct", true, caption);
+    delta("kpi-cancel-delta", ok ? c.cancelRate : null, ok ? p.cancelRate : null, "pts", false, caption);
+    delta("kpi-loyalty-delta", ok ? c.loyalRate : null, ok ? p.loyalRate : null, "pts", true, caption);
+  }
+  function sparkline(series) {
+    var box = clear(document.getElementById("kpi-spark"));
+    if (series.length < 2) return;
+    var max = Math.max.apply(null, series) || 1, w = 200, h = 36;
+    var pts = series.map(function (v, i) {
+      return (i * w / (series.length - 1)).toFixed(1) + "," + (h - 3 - (h - 6) * v / max).toFixed(1);
+    });
+    var s = svg("svg", { viewBox: "0 0 " + w + " " + h, preserveAspectRatio: "none" });
+    s.appendChild(svg("polyline", { points: pts.join(" "), class: "line", "vector-effect": "non-scaling-stroke" }));
+    box.appendChild(s);
+  }
+
+  // ---------- D7 trend: the compared weeks are shaded, high and low are labelled ----------
+  function renderTrend(range, shaded, shadeLabel) {
+    var box = clear(document.getElementById("trend"));
+    var legend = clear(document.getElementById("trend-legend"));
+    if (!range || range[1] - range[0] < 2) {
+      box.appendChild(el("p", { class: "empty" }, "Not enough dated bookings to show a trend (needs at least two weeks)."));
+      return;
+    }
+    var list = ALL.filter(function (b) { return matches(b); });
+    var values = weekly(list, range, netOf), counts = weekly(list, range, one);
+    var W = Math.max(280, box.clientWidth || 600), H = 250;
+    var left = 58, right = W - 14, top = 28, bottom = H - 30;
+    var yMax = niceAxis(Math.max.apply(null, values) / 100) * 100;
+    var step = (right - left) / (values.length - 1);
+    function x(i) { return left + i * step; }
+    function y(v) { return bottom - (bottom - top) * v / yMax; }
+    var s = svg("svg", { width: W, height: H, viewBox: "0 0 " + W + " " + H, role: "img",
+      "aria-label": "Weekly net revenue from the week of " + day(WEEKS[range[0]]) + " to the week of " + day(WEEKS[range[1] - 1]) });
+    if (shaded) {
+      var sx = Math.max(left, x(shaded[0] - range[0]) - step / 2);
+      s.appendChild(svg("rect", { class: "shade", x: sx, y: top - 20, width: right - sx, height: bottom - top + 20 }));
+      s.appendChild(svg("text", { class: "shade-label", x: sx + 6, y: top - 7 }, shadeLabel));
+      var item = el("span");
+      item.appendChild(el("i", { class: "swatch shade" }));
+      item.appendChild(document.createTextNode(shadeLabel + ", compared with the weeks before"));
+      legend.appendChild(item);
+    }
+    for (var t = 0; t <= 4; t++) {
+      var v = yMax * t / 4;
+      s.appendChild(svg("line", { class: t ? "grid" : "base", x1: left, x2: right, y1: y(v), y2: y(v) }));
+      s.appendChild(svg("text", { x: left - 8, y: y(v) + 4, "text-anchor": "end" }, shortMoney(v)));
+    }
+    var pts = values.map(function (v, i) { return x(i).toFixed(1) + "," + y(v).toFixed(1); });
+    s.appendChild(svg("path", { class: "area", d: "M" + x(0) + " " + bottom + " L" + pts.join(" L") + " L" + x(values.length - 1) + " " + bottom + " Z" }));
+    s.appendChild(svg("polyline", { class: "line", points: pts.join(" ") }));
+    var every = Math.max(1, Math.ceil(values.length / Math.max(2, Math.floor((right - left) / 72))));
+    values.forEach(function (v, i) {
+      if (i % every === 0) s.appendChild(svg("text", { x: x(i), y: bottom + 18, "text-anchor": "middle" }, day(WEEKS[range[0] + i])));
+    });
+    var hi = values.indexOf(Math.max.apply(null, values)), lo = values.indexOf(Math.min.apply(null, values));
+    [[hi, "High " + money(values[hi]), -10], [lo, "Low " + money(values[lo]), 20]].forEach(function (c, n) {
+      if (n === 1 && lo === hi) return;
+      var cx = x(c[0]), cy = y(values[c[0]]);
+      var anchor = cx < left + 70 ? "start" : (cx > right - 70 ? "end" : "middle");
+      s.appendChild(svg("circle", { class: "dot", cx: cx, cy: cy, r: 5 }));
+      s.appendChild(svg("text", { class: "callout", x: cx, y: Math.min(bottom - 6, Math.max(top + 12, cy + c[2])), "text-anchor": anchor }, c[1]));
+    });
+    // Hover: a crosshair and tooltip on the nearest week.
+    var cross = svg("line", { class: "cross", y1: top - 20, y2: bottom, visibility: "hidden" });
+    var dot = svg("circle", { class: "dot", r: 5, visibility: "hidden" });
+    s.appendChild(cross); s.appendChild(dot);
+    s.appendChild(svg("rect", { x: left - step / 2, y: 0, width: right - left + step, height: H, fill: "transparent" }));
+    var tip = el("div", { class: "tooltip", role: "status" });
+    tip.hidden = true;
+    s.addEventListener("pointermove", function (e) {
+      var r = s.getBoundingClientRect();
+      var i = Math.max(0, Math.min(values.length - 1, Math.round((e.clientX - r.left - left) / step)));
+      cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+      dot.setAttribute("cx", x(i)); dot.setAttribute("cy", y(values[i])); dot.setAttribute("visibility", "visible");
+      tip.hidden = false;
+      tip.textContent = "Week of " + day(WEEKS[range[0] + i]) + ": " + money(values[i]) + " · " + counts[i] + " confirmed";
+      tip.style.left = Math.min(Math.max(x(i), 130), W - 130) + "px";
+      tip.style.top = y(values[i]) + "px";
+    });
+    s.addEventListener("pointerleave", function () {
+      cross.setAttribute("visibility", "hidden"); dot.setAttribute("visibility", "hidden"); tip.hidden = true;
+    });
+    box.appendChild(s);
+    box.appendChild(tip);
+  }
+
+  // ---------- D4 cancellation by route, and the route / class bars ----------
+  // Route charts ignore the route filter and highlight the chosen route instead (same for class).
+  function groupBy(list, key) {
+    var groups = {};
+    list.forEach(function (b) {
+      var g = groups[b[key]] || (groups[b[key]] = { name: b[key], confirmed: 0, cancelled: 0 });
+      if (b.s === "confirmed") g.confirmed++; else g.cancelled++;
+    });
+    return Object.keys(groups).map(function (k) { var g = groups[k]; g.total = g.confirmed + g.cancelled; return g; });
+  }
+  function addAxis(bars, max, fmt) {
+    bars.appendChild(el("span", { class: "spacer" }));
+    var a = el("div", { class: "axis", "aria-hidden": "true" });
+    for (var t = 0; t <= 4; t++) a.appendChild(el("span", {}, fmt(max * t / 4)));
+    bars.appendChild(a);
+    bars.appendChild(el("span", { class: "spacer" }));
+  }
+  function addRow(bars, name, chosen, segments, label, extra) {
+    var picked = chosen ? name === chosen : null;
+    bars.appendChild(el("span", { class: "name" + (picked === null ? "" : picked ? " picked" : " dim"), title: name }, name));
+    var track = el("div", { class: "track" + (picked === false ? " dim" : "") });
+    segments.forEach(function (seg) { if (seg.pct > 0) track.appendChild(el("div", { class: seg.cls, style: "width:" + seg.pct + "%", title: seg.title })); });
+    if (extra) track.appendChild(extra);
+    bars.appendChild(track);
+    bars.appendChild(el("span", { class: "val" + (picked === false ? " dim" : "") }, label));
+  }
+  function emptyNote(box, text) { box.appendChild(el("p", { class: "empty" }, text)); }
+  function renderCancelChart() {
+    var box = clear(document.getElementById("cancel-chart"));
+    var list = ALL.filter(function (b) { return inView(b, "route"); });
+    var groups = groupBy(list, "r");
+    if (!groups.length) return emptyNote(box, "No bookings match these filters.");
+    var avg = figures(list).cancelRate;
+    groups.forEach(function (g) { g.rate = g.cancelled / g.total; });
+    groups.sort(function (a, b) { return b.rate - a.rate || b.total - a.total || a.name.localeCompare(b.name); });
+    var max = niceAxis(groups[0].rate * 100) / 100;
+    var bars = el("div", { class: "bars" });
+    groups.forEach(function (g) {
+      addRow(bars, g.name, state.route,
+        [{ cls: g.rate > avg ? "s2" : "s2-soft", pct: 100 * g.rate / max, title: g.name + ": " + pct(g.rate) + " cancelled (" + g.cancelled + " of " + g.total + ")" }],
+        pct(g.rate) + " · " + g.cancelled + "/" + g.total,
+        el("span", { class: "ref", style: "left:" + (100 * avg / max) + "%", "aria-hidden": "true" }));
+    });
+    addAxis(bars, max, function (v) { return +(v * 100).toFixed(1) + "%"; });
+    box.appendChild(bars);
+    box.appendChild(el("p", { class: "note" }, "Average " + pct(avg) + ". Highest first; labels show rate · cancelled/total."));
+  }
+  function renderRouteChart() {
+    var box = clear(document.getElementById("route-chart"));
+    var groups = groupBy(ALL.filter(function (b) { return inView(b, "route"); }), "r");
+    if (!groups.length) return emptyNote(box, "No bookings match these filters.");
+    groups.sort(function (a, b) { return b.total - a.total || a.name.localeCompare(b.name); });
+    var max = niceAxis(groups[0].total, true);
+    var bars = el("div", { class: "bars" });
+    groups.forEach(function (g) {
+      addRow(bars, g.name, state.route, [
+        { cls: "s1", pct: 100 * g.confirmed / max, title: g.name + ": " + g.confirmed + " confirmed" },
+        { cls: "s2", pct: 100 * g.cancelled / max, title: g.name + ": " + g.cancelled + " cancelled" }
+      ], g.confirmed + " · " + g.cancelled);
+    });
+    addAxis(bars, max, num);
+    box.appendChild(bars);
+  }
+  function renderClassChart() {
+    var box = clear(document.getElementById("class-chart"));
+    var groups = groupBy(ALL.filter(function (b) { return inView(b, "class") && b.s === "confirmed"; }), "c");
+    if (!groups.length) return emptyNote(box, "No confirmed tickets match these filters.");
+    groups.sort(function (a, b) { return b.confirmed - a.confirmed || a.name.localeCompare(b.name); });
+    var total = groups.reduce(function (n, g) { return n + g.confirmed; }, 0);
+    box.appendChild(el("p", { class: "note" }, num(total) + " tickets"));
+    var max = niceAxis(groups[0].confirmed, true);
+    var bars = el("div", { class: "bars" });
+    groups.forEach(function (g) {
+      addRow(bars, g.name, state.cls, [{ cls: "s1", pct: 100 * g.confirmed / max, title: g.name + ": " + g.confirmed }], num(g.confirmed));
+    });
+    addAxis(bars, max, num);
+    box.appendChild(bars);
+  }
+
+  // ---------- D6 table: sortable, searchable, paged ----------
+  var table = document.getElementById("bookings");
+  var tbody = table.tBodies[0];
+  var headers = Array.prototype.slice.call(table.tHead.rows[0].cells);
+  function sortValue(b, key) {
+    if (key === "net") return b.s === "confirmed" ? b.net : -1;
+    if (key === "disc") return b.disc;
+    return b[key] || "";
+  }
+  function tableRows() {
+    var q = state.q.toLowerCase();
+    var rows = ALL.filter(function (b) {
+      if (!inView(b) || (state.status !== "all" && b.s !== state.status)) return false;
+      return !q || [b.t, b.p, b.r, b.c, b.d || "", b.s].join(" ").toLowerCase().indexOf(q) !== -1;
+    });
+    var key = state.sort, dir = state.dir;
+    rows.sort(function (a, b) {
+      var x = sortValue(a, key), y = sortValue(b, key);
+      var c = typeof x === "number" ? x - y : String(x).localeCompare(String(y), undefined, { numeric: true });
+      return c * dir;
+    });
+    return rows;
+  }
+  function renderTable() {
+    var rows = tableRows();
+    var size = state.size || Math.max(rows.length, 1);
+    var pages = Math.max(1, Math.ceil(rows.length / size));
+    state.page = Math.max(1, Math.min(state.page, pages));
+    var start = (state.page - 1) * size, shown = rows.slice(start, start + size);
+    clear(tbody);
+    shown.forEach(function (b) {
+      var tr = el("tr");
+      [b.t, b.p, b.r, b.c, b.d || "—", b.disc ? b.disc + "%" : "—", b.s === "confirmed" ? money(b.net) : "—"].forEach(function (text, i) {
+        tr.appendChild(el("td", i >= 5 ? { class: "num" } : {}, text));
+      });
+      var td = el("td");
+      td.appendChild(el("span", { class: "status " + b.s }, b.s === "confirmed" ? "Confirmed" : "Cancelled"));
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    });
+    if (!rows.length) {
+      var tr = el("tr");
+      tr.appendChild(el("td", { colspan: "8", class: "empty" }, "No bookings match these filters."));
+      tbody.appendChild(tr);
+    }
+    setText("table-count", rows.length
+      ? "Showing " + num(start + 1) + "–" + num(start + shown.length) + " of " + num(rows.length) + " bookings"
+      : "Showing 0 bookings");
+    setText("page-of", "Page " + state.page + " of " + pages);
+    document.getElementById("prev").disabled = state.page <= 1;
+    document.getElementById("next").disabled = state.page >= pages;
+    headers.forEach(function (th) {
+      var on = th.dataset.key === state.sort;
+      if (on) th.setAttribute("aria-sort", state.dir > 0 ? "ascending" : "descending"); else th.removeAttribute("aria-sort");
+      th.querySelector(".arrow").textContent = on ? (state.dir > 0 ? "▲" : "▼") : "";
+    });
+  }
+
+  // ---------- D2 controls ----------
+  function fillSelect(id, key) {
+    var select = document.getElementById(id);
+    var names = {};
+    ALL.forEach(function (b) { names[b[key]] = true; });
+    Object.keys(names).sort().forEach(function (n) { select.appendChild(el("option", { value: n }, n)); });
+    return select;
+  }
+  if (window.matchMedia("(max-width: 640px)").matches) {  // shorter pages on phones
+    state.size = 25;
+    document.getElementById("page-size").value = "25";
+  }
+  var periodBox = document.getElementById("period");
+  if (N >= 2) {
+    var lengths = [4, 6, 8, 13, 26].filter(function (k) { return 2 * k <= N; }).slice(-2).reverse();
+    periodBox.hidden = false;
+    ["all"].concat(lengths).forEach(function (p) {
+      var b = el("button", { type: "button", "aria-pressed": String(p === "all") }, p === "all" ? "All " + N + " weeks" : "Last " + p);
+      b.addEventListener("click", function () {
+        state.period = p; state.page = 1;
+        Array.prototype.forEach.call(periodBox.children, function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+        render();
+      });
+      periodBox.appendChild(b);
+    });
+  }
+  var routeSelect = fillSelect("route-filter", "r");
+  var classSelect = fillSelect("class-filter", "c");
+  routeSelect.addEventListener("change", function () { state.route = routeSelect.value; state.page = 1; render(); });
+  classSelect.addEventListener("change", function () { state.cls = classSelect.value; state.page = 1; render(); });
+  document.getElementById("reset").addEventListener("click", function () {
+    state.route = state.cls = ""; routeSelect.value = classSelect.value = "";
+    if (periodBox.firstChild) periodBox.firstChild.click(); else render();
+  });
+  var statusButtons = document.querySelectorAll("#status-filter button");
+  statusButtons.forEach(function (button) {
     button.addEventListener("click", function () {
-      filter = button.dataset.filter;
-      buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b === button)); });
-      apply();
+      state.status = button.dataset.status; state.page = 1;
+      statusButtons.forEach(function (b) { b.setAttribute("aria-pressed", String(b === button)); });
+      renderTable();
     });
   });
-  search.addEventListener("input", apply);
+  document.getElementById("search").addEventListener("input", function (e) { state.q = e.target.value.trim(); state.page = 1; renderTable(); });
+  headers.forEach(function (th) {
+    th.querySelector("button").addEventListener("click", function () {
+      if (state.sort === th.dataset.key) state.dir = -state.dir; else { state.sort = th.dataset.key; state.dir = 1; }
+      renderTable();
+    });
+  });
+  document.getElementById("page-size").addEventListener("change", function (e) { state.size = +e.target.value; state.page = 1; renderTable(); });
+  document.getElementById("prev").addEventListener("click", function () { state.page--; renderTable(); });
+  document.getElementById("next").addEventListener("click", function () { state.page++; renderTable(); });
 
+  function render() {
+    var w = windows();
+    var view = ALL.filter(function (b) { return inView(b); });
+    var cur = null, prev = null, caption = null;
+    if (w) {
+      cur = ALL.filter(function (b) { return matches(b) && inWeeks(b, w.cur); });
+      prev = ALL.filter(function (b) { return matches(b) && inWeeks(b, w.prev); });
+      caption = state.period === "all" ? "last " + w.k + " wk vs previous " + w.k : "vs previous " + w.k + " wk";
+    }
+    renderKpis(view, cur, prev, caption);
+    var trendRange = !w ? null : state.period === "all" ? [0, N] : [w.prev[0], N];
+    sparkline(w ? weekly(ALL.filter(function (b) { return matches(b); }), state.period === "all" ? [0, N] : w.cur, netOf) : []);
+    renderTrend(trendRange, w ? w.cur : null, w ? "Last " + w.k + " weeks" : "");
+    renderCancelChart();
+    renderRouteChart();
+    renderClassChart();
+    renderTable();
+    var parts = [state.period === "all" ? (N ? "All " + N + " weeks" : "All bookings")
+      : "Last " + state.period + " weeks, from " + day(WEEKS[N - state.period])];
+    if (state.route) parts.push(state.route);
+    if (state.cls) parts.push(state.cls);
+    setText("view-note", parts.join(" · "));
+    document.getElementById("reset").hidden = state.period === "all" && !state.route && !state.cls;
+  }
+  render();
+
+  var lastWidth = document.getElementById("trend").clientWidth;
+  window.addEventListener("resize", function () {
+    var width = document.getElementById("trend").clientWidth;
+    if (width !== lastWidth) { lastWidth = width; render(); }
+  });
+
+  // ---------- print and export ----------
+  var savedSize = null;
+  window.addEventListener("beforeprint", function () { savedSize = state.size; state.size = 0; renderTable(); });
+  window.addEventListener("afterprint", function () { if (savedSize !== null) { state.size = savedSize; savedSize = null; renderTable(); } });
   document.getElementById("print").addEventListener("click", function () { window.print(); });
   document.getElementById("export-csv").addEventListener("click", function () {
-    var lines = [Array.prototype.map.call(table.tHead.rows[0].cells, function (c) { return c.textContent; })];
-    rows.forEach(function (row) {
-      if (!row.hidden) lines.push(Array.prototype.map.call(row.cells, function (c) { return c.textContent.trim(); }));
-    });
-    var csv = lines.map(function (cells) {
-      return cells.map(function (v) {
+    var lines = [["Ticket", "Passenger", "Route", "Class", "Date", "Discount %", "Net price", "Status"]].concat(
+      tableRows().map(function (b) {
+        return [b.t, b.p, b.r, b.c, b.d || "", String(b.disc), b.s === "confirmed" ? (b.net / 100).toFixed(2) : "", b.s];
+      }));
+    var csv = lines.map(function (row) {
+      return row.map(function (v) {
         if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; // stop spreadsheet apps running cell text as a formula
         return '"' + v.replace(/"/g, '""') + '"';
       }).join(",");
