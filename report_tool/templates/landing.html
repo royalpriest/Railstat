@@ -117,6 +117,37 @@ td:last-child { color: var(--ink-2); }
 .tag-opt { background: var(--chip); color: var(--ink-2); }
 .site-footer { border-top: 1px solid var(--line); background: var(--surface); }
 .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; padding-top: 20px; padding-bottom: 20px; font-size: 13px; color: var(--ink-2); }
+
+/* Warm, spacious upload workspace, paired with the report. */
+.wrap { max-width: 1280px; padding-left: 32px; padding-right: 32px; }
+.site-header, .site-footer { background: transparent; }
+.site-header .wrap { padding-top: 20px; padding-bottom: 20px; }
+.hero { gap: 56px; padding-top: 64px; }
+.hero h1 { font-size: clamp(34px, 4vw, 50px); font-weight: 600; line-height: 1.13; letter-spacing: -.045em; }
+.lead { font-size: 17px; line-height: 1.7; max-width: 48ch; }
+.card { border-radius: 10px; background: transparent; }
+.btn { border-color: var(--line); background: transparent; font-weight: 500; }
+.btn-primary { background: var(--key); color: var(--key-ink); border-color: var(--key); box-shadow: 0 2px 0 var(--key-edge); }
+.upload { padding: 24px; gap: 18px; }
+.drop { border: 1px dashed var(--axis); border-radius: 8px; padding: 32px 20px; background: var(--surface); }
+.drop svg { color: var(--series-1); }
+.field-label { font-weight: 500; }
+.hint, .privacy { line-height: 1.6; }
+.preview-col { padding-top: 24px; }
+.preview { padding: 24px; gap: 22px; box-shadow: none; }
+.eyebrow { font: 11px var(--mono); letter-spacing: .06em; }
+.mini-kpi { border: 0; border-left: 2px solid var(--line); border-radius: 0; padding: 8px 14px; }
+.mini-kpi strong { font-size: 25px; font-weight: 500; }
+.mini-kpi span { font-size: 12px; }
+.chip { border-radius: 5px; background: transparent; }
+.section h2 { font-weight: 500; letter-spacing: -.03em; }
+.steps { gap: 28px; }
+.step { border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 22px 0; }
+.step-num { border-radius: 5px; background: var(--key); color: var(--key-ink); font: 12px var(--mono); width: 30px; height: 28px; box-shadow: 0 2px 0 var(--key-edge); }
+.step h3, .feature h3 { font-weight: 500; }
+th { font: 11px var(--mono); }
+.tag { border-radius: 4px; font-weight: 500; }
+@media (max-width: 640px) { .wrap { padding-left: 18px; padding-right: 18px; } .hero { padding-top: 36px; gap: 20px; } main { gap: 48px; } .upload, .preview { padding: 18px; } .preview-col { padding-top: 8px; } }
 </style>
 </head>
 <body>
@@ -138,7 +169,7 @@ td:last-child { color: var(--ink-2); }
 <main class="wrap">
   <section class="hero">
     <div class="hero-copy">
-      <h1>Turn a bookings spreadsheet into a dashboard in seconds</h1>
+      <h1>Your bookings.<br>A clearer picture.</h1>
       <p class="lead">Upload an Excel export. Railstat checks every row, flags the ones it can't read, and builds a report of revenue, cancellations and routes you can filter, print or share.</p>
 
       <form class="card upload" id="upload-form" action="/report" method="post" enctype="multipart/form-data" novalidate>
@@ -374,3 +405,4 @@ td:last-child { color: var(--ink-2); }
 </script>
 </body>
 </html>
+
