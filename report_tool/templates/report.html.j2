@@ -28,8 +28,6 @@ button:disabled { opacity: 0.45; cursor: default; }
 /* D1 app header */
 .topbar { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; justify-content: space-between;
   padding: 14px 0; border-bottom: 1px solid var(--line); }
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; color: var(--ink); text-decoration: none; }
-.logo-mark { width: 28px; height: 28px; border-radius: 7px; background: #0b0b0b; display: inline-grid; place-items: center; }
 .file-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px;
   background: var(--chip); font-size: 12px; color: var(--ink-2); min-width: 0; max-width: 100%; }
 .file-chip strong { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -157,9 +155,8 @@ footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-betwee
 <main class="wrap">
 
 <header class="topbar">
-  {% if upload_url %}<a class="brand" href="{{ upload_url }}">{% else %}<span class="brand">{% endif %}
-    <span class="logo-mark"><svg width="18" height="18" viewBox="0 0 26 26" aria-hidden="true"><polyline points="4,19 10,12 14,15 22,6" fill="none" stroke="#6da7ec" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></span>
-    Railstat
+  {% if upload_url %}<a class="brand" href="{{ upload_url }}" aria-label="Railstat home">{% else %}<span class="brand">{% endif %}
+    {% include "_logo.html" %}
   {% if upload_url %}</a>{% else %}</span>{% endif %}
   <span class="file-chip" title="{{ source }}">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>
