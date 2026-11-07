@@ -8,3 +8,6 @@ build/
 dist/
 reports/
 .ipynb_checkpoints/
+public/
+.deps/
+.vercel/

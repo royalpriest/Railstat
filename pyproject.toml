@@ -8,7 +8,7 @@ version = "1.1.0"
 description = "Turn a train bookings Excel workbook into a validated HTML or text report."
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["openpyxl>=3.1,<4", "jinja2>=3.1,<4"]
+dependencies = ["openpyxl>=3.1,<4", "jinja2>=3.1,<4", "flask>=3.1,<4"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6"]
@@ -24,6 +24,7 @@ report_tool = ["templates/*.j2"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 110
