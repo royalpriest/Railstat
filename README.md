@@ -29,7 +29,7 @@ In a Security Operations Center (SOC), analysts must often parse through massive
   - bookings by route and by class;
   - a bookings table you can sort, search and page through.
 
-  It has Export CSV and Print / Save PDF buttons and a light/dark switch, uses the Space Mono font (falling back to the system monospace font offline), and works on a phone.
+  It has Export CSV and Print / Save PDF buttons and a light/dark switch, uses DM Sans for the interface and Space Mono for compact data labels (with offline system fallbacks), and works on a phone.
 - **Text report:** `--format txt` (or `both`) writes the same figures as plain text.
 - **Skipped rows:** listed in the report and saved next to it as `..._skipped_rows.csv`.
 - **Privacy by default:** passenger names are masked (`Maria Gonzalez` becomes `M. G•••••••`) and full names are never written to the file unless you pass `--show-names`. Spreadsheet text is HTML-escaped, and CSV cells that could run as spreadsheet formulas are neutralised.
@@ -65,10 +65,11 @@ python samples/make_sample.py   # regenerate the sample workbook
 `Project.ipynb` is the original notebook version, kept for reference. The maintained code is in `report_tool/`.
 
 ### Web app (Vercel)
-`app.py` is a small Flask app. The landing page explains the tool, shows a preview built from the sample file, and takes an `.xlsx` upload (up to 4 MB, drag and drop or browse) that returns the HTML dashboard. `/sample` shows the sample report and `/template.xlsx` downloads a blank workbook with the right headers. Upload problems (wrong file type, missing columns, no usable rows) are explained in plain words with how to fix them. The page uses the Space Mono font and has a light/dark switch that remembers your choice. Uploads are processed in a temporary file that is deleted straight away; nothing is stored. Passenger names stay masked unless the "Show full passenger names" box is ticked.
+`app.py` is a small Flask app. The landing page explains the tool, shows a preview built from the sample file, and takes an `.xlsx` upload (up to 4 MB, drag and drop or browse) that returns the HTML dashboard. `/sample` shows the sample report and `/template.xlsx` downloads a blank workbook with the right headers. Upload problems (wrong file type, missing columns, no usable rows) are explained in plain words with how to fix them. The page uses a light retro design with warm paper surfaces, muted modular accents and DM Sans typography and has a light/dark switch that remembers your choice. Uploads are processed in a temporary file that is deleted straight away; nothing is stored. Passenger names stay masked unless the "Show full passenger names" box is ticked.
 
 ```bash
 flask --app app run          # http://127.0.0.1:5000
 ```
 
 On Vercel it deploys with no extra configuration: Vercel finds `app.py` and installs the dependencies from `pyproject.toml`.
+

@@ -1,8 +1,8 @@
-{# Shared look: Space Mono, light/dark tokens, and the theme switcher. Included in <head>. #}
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232a78d6%22/%3E%3Cpath d=%22M6.5 24.5H11L16 19.5H19L25.5 13%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3Ccircle cx=%226.5%22 cy=%2224.5%22 r=%222.6%22 fill=%22%232a78d6%22 stroke=%22%23fff%22 stroke-width=%222%22/%3E%3Ccircle cx=%2225.5%22 cy=%2213%22 r=%223.4%22 fill=%22%23fff%22/%3E%3Ccircle cx=%2225.5%22 cy=%2213%22 r=%221.4%22 fill=%22%232a78d6%22/%3E%3C/svg%3E">
+{# Shared look: warm paper, light modular accents, light/dark tokens, and the theme switcher. Included in <head>. #}
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2042%2034%22%20width%3D%2238%22%20height%3D%2232%22%3E%3Crect%20x%3D%223%22%20y%3D%2215%22%20width%3D%2217%22%20height%3D%2214%22%20rx%3D%222%22%20fill%3D%22%23c9937b%22%2F%3E%3Crect%20x%3D%2220%22%20y%3D%225%22%20width%3D%2217%22%20height%3D%2224%22%20rx%3D%222%22%20fill%3D%22%23a4bdc7%22%2F%3E%3Crect%20x%3D%2219%22%20y%3D%222%22%20width%3D%2219%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23d5b36e%22%2F%3E%3Crect%20x%3D%2225%22%20y%3D%229%22%20width%3D%228%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23faf9f5%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%2223%22%20width%3D%2234%22%20height%3D%226%22%20rx%3D%221%22%20fill%3D%22%238ba59a%22%2F%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2229%22%20r%3D%225%22%20fill%3D%22%2335433e%22%2F%3E%3Ccircle%20cx%3D%2223%22%20cy%3D%2229%22%20r%3D%225%22%20fill%3D%22%2335433e%22%2F%3E%3Ccircle%20cx%3D%2235%22%20cy%3D%2229%22%20r%3D%225%22%20fill%3D%22%2335433e%22%2F%3E%3C%2Fsvg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script>
   // Apply the saved theme before first paint so there's no flash. No saved choice = follow the system.
   (function () {
@@ -15,39 +15,40 @@
 <style>
 :root {
   color-scheme: light;
-  --font: "Space Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --page: #f4f4f1; --surface: #ffffff; --ink: #0b0b0b; --ink-2: #4a4945; --muted: #63625d;
-  --line: #e1e0d9; --axis: #c3c2b7; --head: #f4f4f1; --chip: #e9e8e3;
-  --series-1: #2a78d6; --series-2: #eb6834; --series-2-soft: #f4b393;
-  --good: #006300; --good-fill: #0ca30c; --bad: #b42318;
+  --font: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Space Mono", ui-monospace, monospace;
+  --page: #faf9f5; --surface: #fdfcf9; --ink: #303933; --ink-2: #56605a; --muted: #626b65;
+  --line: #dedfd7; --axis: #b6bdb2; --head: #faf9f5; --chip: #f0eee6;
+  --series-1: #668ba3; --series-2: #bb765d; --series-2-soft: #dec0ac;
+  --good: #427345; --good-fill: #76966d; --bad: #b42318;
   --warn-bg: #fff7e3; --warn-line: #f0d48a; --warn-ink: #4a3000;
   --error-bg: #fdeceb; --error-line: #b42318; --error-ink: #7a1c1a;
-  --accent-bg: #eef5fd; --accent-ink: #104281; --focus: #2a78d6;
-  --shadow: 0 18px 40px rgba(11, 11, 11, 0.08);
+  --accent-bg: #edf1ef; --accent-ink: #3e6379; --focus: #668ba3;
+  --shadow: 0 3px 0 rgba(48, 57, 51, 0.035);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #a3a29b;
-    --line: #2c2c2a; --axis: #4a4a46; --head: #222220; --chip: #2c2c2a;
-    --series-1: #3987e5; --series-2: #d95926; --series-2-soft: #7a3a20;
-    --good: #3fbf3f; --good-fill: #0ca30c; --bad: #f08a80;
+    --page: #1d2421; --surface: #252e29; --ink: #eceee5; --ink-2: #b6bdb2; --muted: #b0b9af;
+    --line: #424d43; --axis: #637063; --head: #2e3831; --chip: #424d43;
+    --series-1: #96b9cc; --series-2: #dc9d81; --series-2-soft: #9c7561;
+    --good: #a4c79b; --good-fill: #76966d; --bad: #f08a80;
     --warn-bg: #2b2210; --warn-line: #6b5420; --warn-ink: #f5dfa8;
     --error-bg: #2d1514; --error-line: #f08a80; --error-ink: #f5c2bf;
-    --accent-bg: #14243a; --accent-ink: #a9cdf6; --focus: #6da7ec;
-    --shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+    --accent-bg: #2e3d3b; --accent-ink: #b9d5df; --focus: #a4c5d4;
+    --shadow: 0 3px 0 rgba(0, 0, 0, 0.12);
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #a3a29b;
-  --line: #2c2c2a; --axis: #4a4a46; --head: #222220; --chip: #2c2c2a;
-  --series-1: #3987e5; --series-2: #d95926; --series-2-soft: #7a3a20;
-  --good: #3fbf3f; --good-fill: #0ca30c; --bad: #f08a80;
+  --page: #1d2421; --surface: #252e29; --ink: #eceee5; --ink-2: #b6bdb2; --muted: #b0b9af;
+  --line: #424d43; --axis: #637063; --head: #2e3831; --chip: #424d43;
+  --series-1: #96b9cc; --series-2: #dc9d81; --series-2-soft: #9c7561;
+  --good: #a4c79b; --good-fill: #76966d; --bad: #f08a80;
   --warn-bg: #2b2210; --warn-line: #6b5420; --warn-ink: #f5dfa8;
   --error-bg: #2d1514; --error-line: #f08a80; --error-ink: #f5c2bf;
-  --accent-bg: #14243a; --accent-ink: #a9cdf6; --focus: #6da7ec;
-  --shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+  --accent-bg: #2e3d3b; --accent-ink: #b9d5df; --focus: #a4c5d4;
+  --shadow: 0 3px 0 rgba(0, 0, 0, 0.12);
 }
 .theme-toggle { min-height: 40px; min-width: 40px; padding: 0 12px; border: 1px solid var(--axis); border-radius: 8px;
   background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer;
@@ -65,4 +66,17 @@
 .brand-mark svg { display: block; }
 .brand-accent { color: var(--series-1); }
 @media print { .theme-toggle { display: none; } }
+
+:root { --key: #f8e7af; --key-ink: #3f3826; --key-edge: #d9c789; --brick: #c9a35b; }
+:root[data-theme="dark"] { --key: #d3b766; --key-ink: #22281f; --key-edge: #9a854d; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --key: #d3b766; --key-ink: #22281f; --key-edge: #9a854d; } }
+.brand { font-size: 23px; letter-spacing: -.04em; font-weight: 700; }
+.brand-accent { color: inherit; }
+.brand-mark svg { width: 38px; height: 32px; }
+.theme-toggle { border-color: var(--line); background: transparent; }
+button, .btn, .button { transition: background-color .15s, border-color .15s, transform .15s; }
+button:hover, .btn:hover, .button:hover { border-color: var(--axis); }
+button:active, .btn:active, .button:active { transform: translateY(1px); }
+@media (prefers-reduced-motion: reduce) { button, .btn, .button { transition: none; } }
 </style>
+
