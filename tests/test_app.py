@@ -64,7 +64,7 @@ def test_upload_builds_report_with_names_masked(client, make_workbook):
     response = upload(client, data)
     assert response.status_code == 200
     assert response.headers["Cache-Control"] == "no-store"
-    assert "A. L••" in response.get_data(as_text=True)
+    assert r"A. L\u2022\u2022" in response.get_data(as_text=True)
     assert b"Ann Lee" not in response.data
     assert b"Ann Lee" in upload(client, data, show_names="on").data
 

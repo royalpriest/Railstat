@@ -146,6 +146,7 @@ def report_response(result: LoadResult, source: str, data: bytes, show_names: bo
         source_sha256=hashlib.sha256(data).hexdigest(),
         generated_at=dt.datetime.now(dt.UTC).replace(tzinfo=None),
         show_names=show_names,
+        upload_url="/",
     )
     response = Response(html, mimetype="text/html")
     response.headers["Cache-Control"] = "no-store"
