@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "python3 -m pip install --quiet --target .deps .",
+  "buildCommand": "PYTHONPATH=.deps python3 -m report_tool samples/bookings_sample.xlsx --out public && cp public/booking_summary_*.html public/index.html",
+  "outputDirectory": "public"
+}

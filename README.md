@@ -52,3 +52,6 @@ python samples/make_sample.py   # regenerate the sample workbook
 ```
 
 `Project.ipynb` is the original notebook version, kept for reference. The maintained code is in `report_tool/`.
+
+### Live demo on Vercel
+`vercel.json` deploys the report as a static page: the build installs the tool, generates the HTML report from `samples/bookings_sample.xlsx`, and serves it as `index.html`. It sets the framework to "Other", so Vercel doesn't treat the repo as a Python web app. To show your own data, change the workbook path in `buildCommand`.
