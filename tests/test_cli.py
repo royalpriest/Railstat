@@ -28,17 +28,17 @@ BOOKINGS BY ROUTE (busiest first)
 Toronto-Montreal: 1 confirmed, 1 cancelled
 
 CONFIRMED BOOKINGS
-1. TB-1 | Ann Lee | Toronto-Montreal | First | $1,080.00 | 2026-09-08 | Loyalty: Yes
+1. TB-1 | A. L•• | Toronto-Montreal | First | $1,080.00 | 2026-09-08 | Loyalty: Yes
 
 CANCELLED BOOKINGS
-1. TB-2 | Bo Chan | Toronto-Montreal | Economy | no date
+1. TB-2 | B. C••• | Toronto-Montreal | Economy | no date
 
 SKIPPED ROWS
 Row 4 (TB-3): Price is not a number, found '$5O'
 """
 
 
-def test_writes_timestamped_report(make_workbook, tmp_path):
+def test_writes_timestamped_text_report(make_workbook, tmp_path):
     path = make_workbook(
         [
             [
@@ -57,7 +57,7 @@ def test_writes_timestamped_report(make_workbook, tmp_path):
         ]
     )
     out = tmp_path / "out"
-    assert main([str(path), "--out", str(out)], now=NOW) == EXIT_OK
+    assert main([str(path), "--out", str(out), "--format", "txt"], now=NOW) == EXIT_OK
     report = out / "booking_summary_20261031_140211.txt"
     assert report.read_text(encoding="utf-8") == EXPECTED_REPORT
 
@@ -77,3 +77,48 @@ def test_prompts_for_path_when_not_given(make_workbook, tmp_path, monkeypatch):
     path = make_workbook([["TB-1", "Ann", "A-B", "Economy", 10, "Confirmed", None, 0, "Yes"]])
     monkeypatch.setattr("builtins.input", lambda _prompt: f'"{path}"')
     assert main(["--out", str(tmp_path / "out")], now=NOW) == EXIT_OK
+
+
+def three_rows(make_workbook):
+    return make_workbook(
+        [
+            [
+                "TB-1",
+                "Ann Lee",
+                "Toronto-Montreal",
+                "First",
+                1200,
+                "Confirmed",
+                dt.datetime(2026, 9, 8),
+                10,
+                "Yes",
+            ],
+            ["TB-2", "Bo Chan", "Toronto-Montreal", "Economy", 80, "Cancelled", None, 0, "No"],
+            ["@TB-3", "Cy Diaz", "Toronto-Montreal", "Economy", "TBD", "Confirmed", None, 0, "No"],
+        ]
+    )
+
+
+def test_html_is_the_default_and_skipped_rows_csv_is_written(make_workbook, tmp_path):
+    out = tmp_path / "out"
+    assert main([str(three_rows(make_workbook)), "--out", str(out)], now=NOW) == EXIT_OK
+    assert sorted(p.name for p in out.iterdir()) == [
+        "booking_summary_20261031_140211.html",
+        "booking_summary_20261031_140211_skipped_rows.csv",
+    ]
+    html = (out / "booking_summary_20261031_140211.html").read_text(encoding="utf-8")
+    assert "1 row was skipped" in html
+    assert "A. L••" in html and "Ann Lee" not in html
+    csv_text = (out / "booking_summary_20261031_140211_skipped_rows.csv").read_text(encoding="utf-8")
+    assert csv_text.splitlines() == [
+        "excel_row,ticket_id,reason,value_found",
+        "4,'@TB-3,Price is not a number,'TBD'",
+    ]
+
+
+def test_both_formats_and_show_names(make_workbook, tmp_path):
+    out = tmp_path / "out"
+    args = [str(three_rows(make_workbook)), "--out", str(out), "--format", "both", "--show-names"]
+    assert main(args, now=NOW) == EXIT_OK
+    for suffix in (".txt", ".html"):
+        assert "Ann Lee" in (out / f"booking_summary_20261031_140211{suffix}").read_text(encoding="utf-8")

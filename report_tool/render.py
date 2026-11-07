@@ -1,4 +1,4 @@
-"""Render a BookingSummary as a plain-text report."""
+"""Render a BookingSummary as a plain-text report. Passenger names are masked unless show_names."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ import datetime as dt
 from decimal import Decimal
 
 from report_tool.loader import Booking, SkippedRow
+from report_tool.privacy import display_name
 from report_tool.summary import BookingSummary
 
 
@@ -21,8 +22,13 @@ def _loyalty(value: bool | None) -> str:
     return {True: "Yes", False: "No", None: "Unknown"}[value]
 
 
-def _booking_line(booking: Booking, with_price: bool) -> str:
-    parts = [booking.ticket_id, booking.passenger, booking.route, booking.ticket_class]
+def _booking_line(booking: Booking, with_price: bool, show_names: bool) -> str:
+    parts = [
+        booking.ticket_id,
+        display_name(booking.passenger, show_names),
+        booking.route,
+        booking.ticket_class,
+    ]
     if with_price:
         parts.append(money(booking.net_price))
     parts.append(_date(booking.date))
@@ -36,6 +42,7 @@ def render_text(
     skipped: list[SkippedRow],
     source: str,
     generated_at: dt.datetime,
+    show_names: bool = False,
 ) -> str:
     lines: list[str] = [
         "TRAIN BOOKINGS SUMMARY",
@@ -76,11 +83,17 @@ def render_text(
     lines.append("")
 
     lines.append("CONFIRMED BOOKINGS")
-    lines += [f"{i}. {_booking_line(b, with_price=True)}" for i, b in enumerate(summary.confirmed, 1)]
+    lines += [
+        f"{i}. {_booking_line(b, with_price=True, show_names=show_names)}"
+        for i, b in enumerate(summary.confirmed, 1)
+    ]
     lines.append("")
 
     lines.append("CANCELLED BOOKINGS")
-    lines += [f"{i}. {_booking_line(b, with_price=False)}" for i, b in enumerate(summary.cancelled, 1)]
+    lines += [
+        f"{i}. {_booking_line(b, with_price=False, show_names=show_names)}"
+        for i, b in enumerate(summary.cancelled, 1)
+    ]
 
     if skipped:
         lines += ["", "SKIPPED ROWS"]
