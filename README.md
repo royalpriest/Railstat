@@ -4,6 +4,8 @@
 
 **Live demo:** [railstat-iota.vercel.app](https://railstat-iota.vercel.app/) · [sample report](https://railstat-iota.vercel.app/sample)
 
+![The Railstat dashboard built from the sample bookings file](docs/dashboard.png)
+
 ### Project Overview
 Railstat is a Python package and a Flask web app. Together they turn a raw bookings spreadsheet into a validated, interactive dashboard. You can use it from the command line (`report-tool bookings.xlsx`), or upload a workbook in the browser and get the dashboard back.
 
