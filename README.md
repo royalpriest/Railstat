@@ -101,3 +101,6 @@ flask --app app run          # http://127.0.0.1:5000
 
 On Vercel it deploys with no extra configuration: Vercel finds `app.py` and installs the dependencies from `pyproject.toml`.
 
+
+### License
+Released under the [MIT License](LICENSE).
